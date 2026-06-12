@@ -111,3 +111,5 @@ does not pull in Phase 3's concerns: there is still no scheduler, no parallel
 modules, no resource arbitration. The cycle body runs single-threaded; only the
 stop *signal* crosses a thread boundary. See [RoadMap](RoadMap.md) Phase 3 for
 when genuine concurrency is justified.
+
+

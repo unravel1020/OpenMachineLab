@@ -10,7 +10,9 @@ std::string_view ToString(MachineState state) {
         case MachineState::Running:      return "Running";
         case MachineState::Stopping:     return "Stopping";
         case MachineState::Stopped:      return "Stopped";
-        case MachineState::Error:        return "Error";
+        case MachineState::Fault:        return "Fault";
+        case MachineState::Paused:       return "Paused";
+        case MachineState::Recovering:   return "Recovering";
     }
     return "Unknown";
 }

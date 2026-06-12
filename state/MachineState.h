@@ -16,7 +16,9 @@ enum class MachineState {
     Running,
     Stopping,
     Stopped,
-    Error
+    Fault,
+    Paused,
+    Recovering
 };
 
 // Human-readable name for a state, used by the runtime trace.

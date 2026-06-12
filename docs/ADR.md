@@ -112,4 +112,70 @@ modules, no resource arbitration. The cycle body runs single-threaded; only the
 stop *signal* crosses a thread boundary. See [RoadMap](RoadMap.md) Phase 3 for
 when genuine concurrency is justified.
 
+## ADR-0007 — Extend machine states for fault handling and recovery
+
+**Status:** accepted
+**Date:** 2026-06-12
+
+**Context.** The initial lifecycle model defined the machine states as:
+
+`Created → Initializing → Ready → Running → Stopping → Stopped`
+
+This lifecycle is sufficient to describe startup, production, and shutdown, but it does not represent how real industrial equipment behaves when abnormal conditions occur.
+
+In industrial software, faults are expected conditions that must be handled. A machine should not always terminate after an abnormal event. Some conditions require operator intervention, some require a recovery procedure, and some may allow production to continue after handling.
+
+The previous model had no explicit representation for these intermediate conditions. Adding an `Error` state would mix two different concepts:
+
+* **Error** — an event or reason why something went wrong.
+* **State** — the current condition of the machine lifecycle.
+
+Therefore, faults should be represented as machine states, while error details belong to a future alarm or diagnostic system.
+
+**Decision.** Extend `MachineState` with three additional states:
+
+* **`Paused`** — The machine temporarily stops production execution while remaining initialized. Resources are still available, and the machine can continue without a full restart after the condition is cleared.
+
+* **`Fault`** — The machine has entered an abnormal condition that prevents normal production. The machine remains active enough for diagnosis and recovery actions.
+
+* **`Recovering`** — The machine is executing recovery procedures after a fault or pause condition. Successful recovery returns the machine to `Ready` or `Running`. Failed recovery returns the machine to `Fault`.
+
+The lifecycle becomes:
+
+```
+Created
+    |
+Initializing
+    |
+Ready
+    |
+Running
+    |
+Paused
+    |
+Fault
+    |
+Recovering
+    |
+Ready / Running
+    |
+Stopping
+    |
+Stopped
+```
+
+`MachineState` remains a plain `enum class`. No state-machine framework, transition table, or external lifecycle engine is introduced at this stage.
+
+**Consequences.**
+
+The runtime can now represent a more realistic industrial equipment lifecycle and provides a foundation for future features:
+
+* Alarm and diagnostic management
+* Recovery workflows
+* Operator intervention
+* Fault history tracking
+
+This decision intentionally does not introduce an `AlarmManager`, event bus, scheduler, or recovery framework yet. These will only be added when concrete requirements appear.
+
+The core model remains minimal: states describe the machine condition, while fault causes and handling logic stay in higher-level application code.
 

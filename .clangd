@@ -1,0 +1,17 @@
+# clangd project configuration for OpenMachineLab.
+#
+# clangd reads per-file flags from build/compile_commands.json, which CMake
+# emits because CMAKE_EXPORT_COMPILE_COMMANDS is ON. Configure once from the
+# UCRT64 environment so CMake picks up clang:
+#
+#   cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+#
+# The Add flags below are a fallback for files the compile database does not
+# yet cover (e.g. a header added since the last configure) and keep the
+# diagnostics consistent with the project's warning level.
+CompileFlags:
+  Add:
+    - -std=c++17
+    - -Wall
+    - -Wextra
+    - -Wpedantic

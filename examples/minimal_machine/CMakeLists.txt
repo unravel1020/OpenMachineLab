@@ -1,0 +1,2 @@
+add_executable(minimal_machine main.cpp)
+target_link_libraries(minimal_machine PRIVATE OpenMachineLab)

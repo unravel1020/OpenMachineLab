@@ -1,0 +1,19 @@
+# clang-format companion to clangd. Run on demand:
+#   clang-format -i <file>
+# Formatting is intentionally not wired to format-on-save (see .vscode).
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++17
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 0
+
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: All
+BreakBeforeBraces: Attach
+NamespaceIndentation: None
+SpacesBeforeTrailingComments: 2

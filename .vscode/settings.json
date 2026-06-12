@@ -1,0 +1,26 @@
+{
+    // clangd - project-local config.
+    // NOTE: the path you referenced earlier (D:/SoftWareStall/msys64/...) does
+    // not exist on this machine; the working ucrt64 install is under C:/msys64.
+    "clangd.path": "C:/msys64/ucrt64/bin/clangd.exe",
+    "clangd.arguments": [
+        "--compile-commands-dir=build",
+        "--background-index",
+        "--clang-tidy",
+        "--header-insertion=never",
+        "--completion-style=detailed"
+    ],
+
+    // Disable the Microsoft IntelliSense engine so it does not fight clangd.
+    "C_Cpp.intelliSenseEngine": "disabled",
+
+    // Formatting is opt-in only (Ctrl+Shift+I). Keeps diffs clean.
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+
+    // UTF-8 is required: the runtime trace prints a Unicode arrow (U+2193).
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": true,
+    "files.autoSave": "off"
+}

@@ -1,0 +1,9 @@
+# Normalize line endings: store and check out text files as LF everywhere.
+# Prevents CRLF/LF churn across Windows/Linux/macOS contributors.
+* text=auto eol=lf
+
+# Generated build files are never text (and are gitignored); listed for clarity.
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary

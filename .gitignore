@@ -1,0 +1,70 @@
+# ===== Build output =====
+/build/
+/out/
+/Debug/
+/Release/
+/dist/
+
+# Compiled objects, binaries, libraries
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.pdb
+
+# ===== CMake =====
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+install_manifest.txt
+CMakeUserPresets.json
+CMakePresets.json
+Testing/
+
+# ===== Ninja =====
+*.ninja
+.ninja_deps
+.ninja_log
+rules.ninja
+
+# ===== clangd / language server cache =====
+/.cache/
+.cache/
+
+# ===== IDE / editors =====
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.aps
+*.opensdf
+*.sdf
+*.opendb
+*.VC.db
+
+# VS Code: keep the shared settings.json (clangd config), ignore local overrides
+.vscode/settings.local.json
+.vscode/*.code-workspace
+.vscode/launch.json
+.history/
+
+# JetBrains (CLion etc.)
+.idea/
+cmake-build-*/
+
+# ===== Claude Code (machine-local, not shared) =====
+.claude/settings.local.json
+
+# ===== OS junk =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/

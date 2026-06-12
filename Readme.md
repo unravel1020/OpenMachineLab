@@ -251,12 +251,4 @@ cmake --build build
 
 运行 `minimal_machine` 会阻塞在运行循环里——**按回车停止**，观察它进入 `Stopping → Stopped`。
 
-## 编辑器配置
-
-`.vscode/settings.json` 把 clangd 指向 `C:/msys64/ucrt64/bin/clangd.exe` 和
-`build/compile_commands.json`。首次配置后，打开任意源文件，clangd 即提供跳转、诊断和补全。
-
-> 若你的全局 `clangd.path` 仍指向 `D:/SoftWareStall/msys64/...`，该路径在本机不存在——
-> 请改用 `C:/msys64/ucrt64/bin/clangd.exe`。
-
 设计决策见 [docs/ADR.md](docs/ADR.md)，第一阶段之后的规划见 [docs/RoadMap.md](docs/RoadMap.md)。

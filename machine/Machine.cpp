@@ -1,13 +1,20 @@
 #include "machine/Machine.h"
 
+#include <chrono>
 #include <iostream>
+#include <thread>
 #include <utility>
 
 namespace oml {
 
+// Time the machine spends on each production cycle. Lets a human watch the loop
+// tick without flooding the console; it is not a scheduling primitive.
+constexpr auto kCycleTick = std::chrono::milliseconds(700);
+
 Machine::Machine() {
     // The constructor prints the initial state so the trace always starts with
-    // "Created" on its own line; every later change prepends the arrow.
+    // "Created" on its own line; every later change prepends a "v" marker.
+    // ASCII-only on purpose: a Unicode arrow mojibakes on non-UTF-8 consoles.
     std::cout << ToString(state_) << "\n";
 }
 
@@ -39,9 +46,26 @@ void Machine::Initialize() {
 
 void Machine::Run() {
     TransitionTo(MachineState::Running);
-    for (const auto& workflow : workflows_) {
-        workflow->Run();
+
+    // A real machine keeps working until it is told to stop, not just once.
+    // Each iteration is one production cycle: the recipe runs, then the machine
+    // checks whether Stop() has flipped the request flag (usually from another
+    // thread acting as the operator or host) and either ticks again or exits.
+    stop_requested_.store(false);
+    unsigned long long cycle = 0;
+    while (!stop_requested_.load()) {
+        ++cycle;
+        std::cout << "    cycle " << cycle << "\n";
+        for (const auto& workflow : workflows_) {
+            workflow->Run();
+        }
+        std::this_thread::sleep_for(kCycleTick);
     }
+    std::cout << "    stop requested after " << cycle << " cycle(s)\n";
+}
+
+void Machine::Stop() {
+    stop_requested_.store(true);
 }
 
 void Machine::Shutdown() {
@@ -51,7 +75,7 @@ void Machine::Shutdown() {
 
 void Machine::TransitionTo(MachineState next) {
     state_ = next;
-    std::cout << " \xe2\x86\x93\n" << ToString(state_) << "\n";
+    std::cout << " v\n" << ToString(state_) << "\n";
 }
 
 } // namespace oml

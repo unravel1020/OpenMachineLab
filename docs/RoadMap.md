@@ -12,6 +12,7 @@ abstractions and the `minimal_machine` example runs the full lifecycle.
 - [x] Plain-enum lifecycle (ADR-0005)
 - [x] CMake (Ninja) + clangd toolchain (ADR-0004)
 - [x] Acceptance demo with a state trace
+- [x] Run is a loop that exits on `Stop()` (ADR-0006)
 
 ## Phase 2 — Make the abstractions do something
 
@@ -30,6 +31,10 @@ betting on an architecture.
 
 A real device runs modules concurrently and shares resources. This is where an
 execution abstraction earns its place.
+
+Phase 1 already has a single-threaded run loop with a stop-request signal
+(ADR-0006). This phase is about genuine parallelism — several modules or
+workflows running at once — which the single-cycle loop does not yet do.
 
 - [ ] Decide between cooperative steps, a thread per module, or an actor model
       — **driven by a real bottleneck**, then documented as an ADR.

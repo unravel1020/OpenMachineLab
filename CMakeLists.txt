@@ -20,6 +20,9 @@ endif()
 # flags of every translation unit. Required for the project's clangd setup.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# std::thread is used by the example's operator console.
+find_package(Threads REQUIRED)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     add_compile_options(-Wall -Wextra -Wpedantic)
 elseif(MSVC)

@@ -4,14 +4,21 @@
 //   Case 1  create a virtual machine
 //   Case 2  attach two resources
 //   Case 3  attach two modules
-//   Case 4  attach one workflow (Initialize -> Run -> Shutdown)
-//   Case 5  run the full lifecycle and print the state trace
+//   Case 4  attach a per-part recipe (LoadFrame -> Align -> Bond -> Unload)
+//   Case 5  run in a loop until the operator issues Stop, then Stopping -> Stopped
+//
+// A machine is not a script: it keeps cycling until told to stop. Here the
+// "operator console" is stdin - a background thread waits for a line (press
+// Enter) and then requests Stop. Run() blocks in the main thread until then.
 #include "machine/Machine.h"
 #include "module/Module.h"
 #include "resource/Resource.h"
 #include "workflow/Workflow.h"
 
+#include <iostream>
 #include <memory>
+#include <string>
+#include <thread>
 
 using namespace oml;
 
@@ -49,16 +56,28 @@ int main() {
     machine.AddModule(std::make_unique<ModuleA>());
     machine.AddModule(std::make_unique<ModuleB>());
 
-    // Case 4: a workflow with three steps.
-    auto workflow = std::make_unique<Workflow>("MainWorkflow");
-    workflow->AddStep("Initialize", [] { /* device-specific init */ });
-    workflow->AddStep("Run",        [] { /* device-specific run  */ });
-    workflow->AddStep("Shutdown",   [] { /* device-specific stop */ });
-    machine.AddWorkflow(std::move(workflow));
+    // Case 4: a per-part recipe, executed once every run cycle.
+    auto recipe = std::make_unique<Workflow>("Recipe");
+    recipe->AddStep("LoadFrame", [] { /* device-specific */ });
+    recipe->AddStep("Align",     [] { /* device-specific */ });
+    recipe->AddStep("Bond",      [] { /* device-specific */ });
+    recipe->AddStep("Unload",    [] { /* device-specific */ });
+    machine.AddWorkflow(std::move(recipe));
 
-    // Case 5: full lifecycle. The trace is printed to stdout.
     machine.Initialize();
-    machine.Run();
+
+    // Case 5: run in a loop until an exit command arrives. The operator console
+    // is stdin: a background thread waits for one line (press Enter) and then
+    // requests Stop. Run() blocks the main thread, cycling until that happens.
+    std::cout << "\n>>> press <Enter> to stop the machine <<<\n";
+    std::thread operator_console([&machine] {
+        std::string line;
+        std::getline(std::cin, line); // blocks until the operator types a line
+        machine.Stop();
+    });
+
+    machine.Run(); // cycles until Stop() is requested
+    operator_console.join();
     machine.Shutdown();
 
     return 0;

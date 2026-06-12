@@ -89,3 +89,25 @@ tables, no framework.
 **Consequences.** Transitions are trivial to read and step through. If guards
 or history become necessary, a real state machine can replace this later — but
 only after the lifecycle is actually observed to need it.
+
+## ADR-0006 — Run is a loop, not a one-shot
+
+**Status:** accepted
+**Date:** 2026-06-12
+
+**Context.** The first cut of `Machine::Run()` executed the workflows once and
+returned. That describes a script, not a machine: real equipment keeps producing
+part after part until an operator, host, or error tells it to stop. A one-shot
+`Run()` fails the basic test of "is this a machine?"
+
+**Decision.** `Run()` is a loop. Each iteration is one production cycle: the
+recipe runs once, the machine checks a stop-request flag, and either ticks again
+or exits. The stop request is a single `std::atomic<bool>` set by `Stop()`, which
+may be called from another thread (the operator console, a host interface, ...).
+
+**Consequences.** The model now needs the *minimal* concurrency primitive
+required for a loop that exits on command — one atomic flag. This deliberately
+does not pull in Phase 3's concerns: there is still no scheduler, no parallel
+modules, no resource arbitration. The cycle body runs single-threaded; only the
+stop *signal* crosses a thread boundary. See [RoadMap](RoadMap.md) Phase 3 for
+when genuine concurrency is justified.

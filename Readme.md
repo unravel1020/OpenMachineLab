@@ -37,35 +37,42 @@ Acceptance demo (`examples/minimal_machine`):
 | 1 | `Machine machine;` creates a virtual device |
 | 2 | two resources (`AxisResource`, `CameraResource`) |
 | 3 | two modules (`ModuleA`, `ModuleB`) |
-| 4 | one workflow (`Initialize → Run → Shutdown`) |
-| 5 | full lifecycle: `Created → Initializing → Ready → Running → Stopping → Stopped` |
+| 4 | a per-part recipe (`LoadFrame → Align → Bond → Unload`) |
+| 5 | runs in a loop until the operator issues `Stop()`, then `Stopping → Stopped` |
 
-The lifecycle a Case 5 run walks is `Created → Initializing → Ready → Running →
-Stopping → Stopped`. `Stopping` is the transient "shutting down" state — parking
-resources and closing modules — before the machine is fully `Stopped`. In Phase 1
-it is a placeholder; real stop work lands there in a later phase.
+The lifecycle is `Created → Initializing → Ready → Running → Stopping → Stopped`.
+`Running` is not a single pass: the machine loops, running the recipe once per
+cycle, until `Stop()` is requested — that is what makes it a machine rather than
+a script. `Stopping` is the transient "shutting down" state (parking resources,
+closing modules) before the machine is fully `Stopped`; in Phase 1 it is a
+placeholder, with real stop work deferred to a later phase.
 
-Expected output:
+Expected output (the loop runs until you press Enter):
 
 ```
 Created
- ↓
+ v
 Initializing
     Resource AxisResource
     Resource CameraResource
     Module ModuleA Initialized
     Module ModuleB Initialized
- ↓
+ v
 Ready
- ↓
+ v
 Running
-    Workflow MainWorkflow Started
-        Step Initialize
-        Step Run
-        Step Shutdown
- ↓
+    cycle 1
+    Workflow Recipe Started
+        Step LoadFrame
+        Step Align
+        Step Bond
+        Step Unload
+    cycle 2
+        ...                          <- keeps cycling, once per cycle
+    stop requested after N cycle(s)  <- Stop() was called
+ v
 Stopping
- ↓
+ v
 Stopped
 ```
 
@@ -112,6 +119,9 @@ cmake --build build
 Configuring also writes `build/compile_commands.json`, which clangd reads for
 exact per-file flags.
 
+Running `minimal_machine` blocks in its run loop — **press Enter to stop it**
+and watch it go `Stopping → Stopped`.
+
 ## Editor setup
 
 `.vscode/settings.json` points clangd at `C:/msys64/ucrt64/bin/clangd.exe` and
@@ -123,3 +133,130 @@ file and clangd provides navigation, diagnostics, and completions.
 
 See [docs/ADR.md](docs/ADR.md) for the design decisions and
 [docs/RoadMap.md](docs/RoadMap.md) for what comes after Phase 1.
+
+---
+
+# OpenMachineLab（中文版）
+
+工业设备软件的通用**运行模型**。
+
+> 第一阶段**不是**模拟焊线机、点胶机或固晶机。它是能*承载*这些设备的最小软件模型——
+> 在运动控制、视觉、PLC、SECS/GEM 出现之前，一个工业设备程序所需的抽象。
+
+## 概念模型
+
+抽丝剥茧到本质，一个设备程序只需要四个概念加一个生命周期：
+
+```
+Machine
+ ├── Resource   - 设备拥有的能力（轴、相机、IO、光源）
+ ├── Module     - 功能单元（上下料、视觉、键合头）
+ ├── Workflow   - 设备执行的有序步骤序列
+ └── State      - 设备处于生命周期的哪个阶段
+```
+
+其它一切（事件总线、调度器、插件系统、IoC、DDD 分层）都被刻意省略。
+它们应从后续阶段的真实痛点中长出来，而不是凭空臆测。
+
+## 状态 —— 第一阶段（MVP）
+
+第一阶段的目标只是**验证模型能跑起来**。它回答：*OpenMachineLab 到底在模拟什么？*
+——工业设备的运行模型，而不是任何单一设备。
+
+验收示例（`examples/minimal_machine`）：
+
+| 用例 | 展示内容 |
+|------|----------|
+| 1 | `Machine machine;` 创建一个虚拟设备 |
+| 2 | 两个资源（`AxisResource`、`CameraResource`） |
+| 3 | 两个模块（`ModuleA`、`ModuleB`） |
+| 4 | 单工件配方（`LoadFrame → Align → Bond → Unload`） |
+| 5 | 循环运行，直到操作员下达 `Stop()`，然后 `Stopping → Stopped` |
+
+生命周期为 `Created → Initializing → Ready → Running → Stopping → Stopped`。
+`Running` 不是跑一遍：设备会循环，每个 cycle 执行一次配方，直到收到 `Stop()` 请求——
+这才是"机器"而非"脚本"。`Stopping` 是"正在关机"的瞬态（回零资源、关闭模块），之后才完全
+`Stopped`；第一阶段里它只是占位，真正的停止逻辑推迟到后续阶段。
+
+预期输出（循环会一直运行，直到你按回车）：
+
+```
+Created
+ v
+Initializing
+    Resource AxisResource
+    Resource CameraResource
+    Module ModuleA Initialized
+    Module ModuleB Initialized
+ v
+Ready
+ v
+Running
+    cycle 1
+    Workflow Recipe Started
+        Step LoadFrame
+        Step Align
+        Step Bond
+        Step Unload
+    cycle 2
+        ...                          <- 每个 cycle 循环一次
+    stop requested after N cycle(s)  <- 收到 Stop()
+ v
+Stopping
+ v
+Stopped
+```
+
+## 目录结构
+
+```
+OpenMachineLab
+├── machine/      Machine - 运行模型根
+├── module/       Module  - 功能单元接口
+├── resource/     Resource - 能力接口
+├── workflow/     Workflow + Step - 有序工作
+├── state/        MachineState - 生命周期
+├── examples/
+│   └── minimal_machine/   第一阶段验收示例
+└── docs/         ADR.md, RoadMap.md
+```
+
+## 工具链
+
+第一阶段基于 **msys2 UCRT64** clang 工具链（clang + clangd）：
+
+- `C:/msys64/ucrt64/bin/clang.exe`、`clang++.exe`、`clangd.exe`
+- CMake + Ninja（用 `pacman -S mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja` 安装）
+
+## 构建与运行
+
+**方式 A —— 在 MSYS2 "UCRT64" 终端里**（clang 是默认编译器）：
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+./build/examples/minimal_machine/minimal_machine.exe
+```
+
+**方式 B —— 在 Git Bash / 任意终端里**，手动指向 ucrt64 工具：
+
+```sh
+export PATH="/c/msys64/ucrt64/bin:$PATH"
+CC=clang CXX=clang++ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+./build/examples/minimal_machine/minimal_machine.exe
+```
+
+配置过程还会生成 `build/compile_commands.json`，clangd 据此获得每个文件的精确编译参数。
+
+运行 `minimal_machine` 会阻塞在运行循环里——**按回车停止**，观察它进入 `Stopping → Stopped`。
+
+## 编辑器配置
+
+`.vscode/settings.json` 把 clangd 指向 `C:/msys64/ucrt64/bin/clangd.exe` 和
+`build/compile_commands.json`。首次配置后，打开任意源文件，clangd 即提供跳转、诊断和补全。
+
+> 若你的全局 `clangd.path` 仍指向 `D:/SoftWareStall/msys64/...`，该路径在本机不存在——
+> 请改用 `C:/msys64/ucrt64/bin/clangd.exe`。
+
+设计决策见 [docs/ADR.md](docs/ADR.md)，第一阶段之后的规划见 [docs/RoadMap.md](docs/RoadMap.md)。

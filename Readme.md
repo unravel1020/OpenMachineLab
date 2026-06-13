@@ -113,7 +113,7 @@ OpenMachineLab
 │   ├── minimal_machine/   DieBonder profile (load/align/bond/unload)
 │   ├── pick_and_place/    PickAndPlace profile (pick/transfer/place/home)
 │   ├── host_demo/         one Host managing both devices
-│   └── file_driven_device/ DieBonder built entirely from .cfg + .recipe files
+│   └── file_driven_device/ file-driven DieBonder; demos alarm -> Fault -> Reset
 ├── tests/        TestBase + lifecycle/perf/safety tests (CTest)
 └── docs/         ADR.md, RoadMap.md
 ```
@@ -272,7 +272,7 @@ OpenMachineLab
 │   ├── minimal_machine/   DieBonder profile（load/align/bond/unload）
 │   ├── pick_and_place/    PickAndPlace profile（pick/transfer/place/home）
 │   ├── host_demo/         一个 Host 同时管理两台设备
-│   └── file_driven_device/ 完全由 .cfg + .recipe 文件驱动的 DieBonder
+│   └── file_driven_device/ 文件驱动 DieBonder；演示 alarm → Fault → Reset
 ├── tests/        TestBase + lifecycle/perf/safety 测试（CTest）
 └── docs/         ADR.md, RoadMap.md
 ```

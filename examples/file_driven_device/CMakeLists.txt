@@ -1,5 +1,5 @@
 add_executable(file_driven_device main.cpp)
-target_link_libraries(file_driven_device PRIVATE OpenMachineLab Threads::Threads)
+target_link_libraries(file_driven_device PRIVATE OpenMachineLab)
 # Standalone (no ucrt64 DLLs needed at runtime).
 target_link_options(file_driven_device PRIVATE -static)
 

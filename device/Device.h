@@ -40,6 +40,10 @@ public:
 
     MachineState State() const { return machine_.State(); }
 
+    // Observability hooks on the owned machine.
+    EventBus&     Bus()    { return machine_.Bus(); }
+    AlarmManager& Alarms() { return machine_.Alarms(); }
+
 protected:
     // Composition helpers for subclasses to call from their constructor.
     void AddResource(std::unique_ptr<Resource> resource) { machine_.AddResource(std::move(resource)); }

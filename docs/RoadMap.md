@@ -28,7 +28,8 @@ architecture.
 - [x] Workflow control: a failing step stops the workflow and faults the machine
       (`Fault`); `Reset()` recovers through `Recovering`. Conditional branching
       still deferred until a recipe needs it.
-- [ ] Tests: a tiny harness around the lifecycle trace.
+- [x] Tests: `lifecycle_test` (CTest) covers state transitions, the module
+      lifecycle hooks, and the failure -> Fault -> Reset path.
 
 ## Phase 3 — Concurrency and the execution model
 

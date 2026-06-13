@@ -5,6 +5,9 @@ project(OpenMachineLab
     DESCRIPTION "A generic runtime model for industrial equipment software"
     LANGUAGES CXX)
 
+# Register CTest targets (tests/lifecycle_test).
+enable_testing()
+
 # --- language & global settings ------------------------------------------
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,3 +47,6 @@ target_include_directories(OpenMachineLab PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # --- examples ------------------------------------------------------------
 add_subdirectory(examples/minimal_machine)
+
+# --- tests ---------------------------------------------------------------
+add_subdirectory(tests)

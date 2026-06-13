@@ -98,6 +98,7 @@ OpenMachineLab
 ├── state/        MachineState - lifecycle
 ├── examples/
 │   └── minimal_machine/   entry point + Recipe + OperatorConsole
+├── tests/        lifecycle_test (CTest)
 └── docs/         ADR.md, RoadMap.md
 ```
 
@@ -132,6 +133,8 @@ exact per-file flags.
 
 Running `minimal_machine` blocks in its run loop — **press Enter to stop it**
 and watch it go `Stopping → Stopped`.
+
+Run the lifecycle tests with `ctest --test-dir build`.
 
 ## Editor setup
 
@@ -238,6 +241,7 @@ OpenMachineLab
 ├── state/        MachineState - 生命周期
 ├── examples/
 │   └── minimal_machine/   入口 + Recipe + OperatorConsole
+├── tests/        lifecycle_test（CTest）
 └── docs/         ADR.md, RoadMap.md
 ```
 
@@ -270,5 +274,7 @@ cmake --build build
 配置过程还会生成 `build/compile_commands.json`，clangd 据此获得每个文件的精确编译参数。
 
 运行 `minimal_machine` 会阻塞在运行循环里——**按回车停止**，观察它进入 `Stopping → Stopped`。
+
+用 `ctest --test-dir build` 运行生命周期测试。
 
 设计决策见 [docs/ADR.md](docs/ADR.md)，第一阶段之后的规划见 [docs/RoadMap.md](docs/RoadMap.md)。

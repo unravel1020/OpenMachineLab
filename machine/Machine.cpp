@@ -12,7 +12,8 @@ namespace oml {
 
 // Time the machine spends on each production cycle. Lets a human watch the loop
 // tick without flooding the console; it is not a scheduling primitive.
-constexpr auto kCycleTick = std::chrono::milliseconds(700);
+constexpr auto kCycleTick        = std::chrono::milliseconds(700);
+constexpr int  kAlarmProcessFail = 1001; // raised when a workflow step fails
 
 Machine::Machine() {
     Log().Info(ToString(state_));
@@ -70,6 +71,7 @@ void Machine::Run() {
             if (!result.success) {
                 fault_reason = "workflow " + workflow->Name()
                                + " failed at step " + result.failed_step;
+                alarms_.Raise({kAlarmProcessFail, Severity::Fault, "PROCESS_FAIL", fault_reason});
                 Log().Warn("    " + fault_reason);
                 failed = true;
                 break;
@@ -103,6 +105,7 @@ void Machine::Stop() {
 
 void Machine::Reset() {
     stop_requested_.store(false); // allow a fresh Run after recovery
+    alarms_.ClearAll();           // clear the causes before recovering
     TransitionTo(MachineState::Recovering);
     for (const auto& module : modules_) {
         module->Reset();

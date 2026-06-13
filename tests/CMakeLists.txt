@@ -1,6 +1,6 @@
 # All tests share oml_test.h (TestBase). It is header-only and lives in this
 # directory, so it is found via the same-dir include "".
-set(OML_TESTS lifecycle_test perf_test safety_test persistence_test event_test)
+set(OML_TESTS lifecycle_test perf_test safety_test persistence_test event_test alarm_test)
 foreach(t IN LISTS OML_TESTS)
     add_executable(${t} ${t}.cpp)
     target_link_libraries(${t} PRIVATE OpenMachineLab Threads::Threads)

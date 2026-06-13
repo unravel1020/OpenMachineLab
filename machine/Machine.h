@@ -1,5 +1,6 @@
 #pragma once
 
+#include "alarm/AlarmManager.h"
 #include "event/EventBus.h"
 #include "module/Module.h"
 #include "resource/Resource.h"
@@ -58,6 +59,10 @@ public:
     // Publish/subscribe bus for Events (state changes; alarms come later).
     EventBus& Bus() { return bus_; }
 
+    // Active alarms (the CAUSES of conditions); a Fault-severity alarm is what
+    // drives the machine into the Fault state.
+    AlarmManager& Alarms() { return alarms_; }
+
 private:
     // Apply a state change: annotate the journal (if any) and emit the trace.
     void TransitionTo(MachineState next, std::string note = "");
@@ -68,6 +73,7 @@ private:
     std::atomic<bool>                      stop_requested_{false};
     History*                               history_ = nullptr;
     EventBus                               bus_;
+    AlarmManager                           alarms_{&bus_};
     std::vector<std::unique_ptr<Resource>> resources_;
     std::vector<std::unique_ptr<Module>>   modules_;
     std::vector<std::unique_ptr<Workflow>> workflows_;

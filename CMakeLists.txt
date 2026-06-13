@@ -36,6 +36,7 @@ endif()
 # Phase 1 layout: one folder per concept. There is no "core" umbrella on
 # purpose - the model is small enough that one library covers it.
 add_library(OpenMachineLab STATIC
+    alarm/AlarmManager.cpp
     config/DeviceConfig.cpp
     event/EventBus.cpp
     history/History.cpp

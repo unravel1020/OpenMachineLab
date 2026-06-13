@@ -71,6 +71,9 @@ With a proven execution model, specialize it.
 
 - [x] EventBus pub/sub spine (ADR-0017): `Machine` publishes `StateChanged`; any
       subscriber (History, Logger, UI, host) reacts without touching emitters.
+- [x] Alarm system (ADR-0018): alarms are the *causes* of conditions; a Fault-
+      severity alarm drives the machine into Fault; `Reset` clears them. Distinct
+      from the Fault state itself.
 
 ## Standing rule
 

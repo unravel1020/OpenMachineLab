@@ -11,6 +11,7 @@
 #include "workflow/Workflow.h"
 
 #include <memory>
+#include <sstream>
 #include <variant>
 
 using namespace oml;
@@ -63,6 +64,22 @@ public:
         Invariant(cleared >= 1, "alarm cleared on Reset");
         Invariant(!m.Alarms().HasFault(), "no active fault after Reset");
         Invariant(m.State() == MachineState::Ready, "machine Ready after Reset");
+
+        // The alarm log persists (Save/Load round-trip). Reset clears active
+        // alarms, not the log, so the raised alarm is still recorded here.
+        std::ostringstream out;
+        m.Alarms().SaveLog(out);
+        AlarmManager  reloaded;
+        std::istringstream in(out.str());
+        reloaded.LoadLog(in);
+        Invariant(reloaded.Log().size() == m.Alarms().Log().size(), "alarm log round-trips");
+        if (!m.Alarms().Log().empty()) {
+            const auto& orig = m.Alarms().Log()[0].alarm;
+            const auto& copy = reloaded.Log()[0].alarm;
+            Invariant(orig.code == copy.code && orig.severity == copy.severity
+                          && orig.name == copy.name && orig.message == copy.message,
+                      "log entry fields preserved on reload");
+        }
     }
 };
 

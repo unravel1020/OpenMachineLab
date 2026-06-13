@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 namespace oml {
 
@@ -18,5 +19,22 @@ struct Alarm {
     std::string name;
     std::string message;
 };
+
+// Severity name and inverse, for persistence.
+inline std::string_view ToString(Severity s) {
+    switch (s) {
+        case Severity::Info:     return "Info";
+        case Severity::Warning:  return "Warning";
+        case Severity::Fault:    return "Fault";
+        case Severity::Critical: return "Critical";
+    }
+    return "Warning";
+}
+inline Severity SeverityFromString(std::string_view name) {
+    if (name == "Info")     return Severity::Info;
+    if (name == "Fault")    return Severity::Fault;
+    if (name == "Critical") return Severity::Critical;
+    return Severity::Warning;
+}
 
 } // namespace oml

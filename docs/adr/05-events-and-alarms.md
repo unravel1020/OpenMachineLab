@@ -58,4 +58,6 @@ recovery clears causes. Multiple alarms can be active at once. The `AlarmManager
 extends the `Event` variant (`AlarmRaised`/`AlarmCleared`), so any subscriber
 (History, UI, host) sees alarm lifecycle without touching emitters. Only one
 alarm source (recipe step failure) exists today; hardware-sourced alarms
-(e-stop, over-travel) plug into the same `Raise` path when needed.
+(e-stop, over-travel) plug into the same `Raise` path when needed. Every raised
+alarm is also appended to a log (independent of active/cleared) that persists via
+`SaveLog`/`LoadLog` for audit.

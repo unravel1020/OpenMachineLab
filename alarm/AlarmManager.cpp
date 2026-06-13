@@ -1,12 +1,26 @@
 #include "alarm/AlarmManager.h"
 
 #include <algorithm>
+#include <istream>
+#include <ostream>
+#include <sstream>
+#include <utility>
 
 namespace oml {
 
+namespace {
+std::string Trim(const std::string& s) {
+    const auto a = s.find_first_not_of(" \t\r");
+    if (a == std::string::npos) return "";
+    const auto b = s.find_last_not_of(" \t\r");
+    return s.substr(a, b - a + 1);
+}
+} // namespace
+
 void AlarmManager::Raise(Alarm alarm) {
-    active_.push_back(alarm);
-    if (bus_ != nullptr) bus_->Publish(AlarmRaised{alarm});
+    log_.push_back({next_seq_++, alarm});
+    active_.push_back(std::move(alarm));
+    if (bus_ != nullptr) bus_->Publish(AlarmRaised{active_.back()});
 }
 
 void AlarmManager::Clear(int code) {
@@ -34,6 +48,40 @@ bool AlarmManager::HasFault() const {
         if (a.severity == Severity::Fault || a.severity == Severity::Critical) return true;
     }
     return false;
+}
+
+void AlarmManager::SaveLog(std::ostream& out) const {
+    for (const auto& e : log_) {
+        out << e.seq << ' ' << e.alarm.code << ' ' << ToString(e.alarm.severity)
+            << ' ' << e.alarm.name;
+        if (!e.alarm.message.empty()) out << ' ' << e.alarm.message;
+        out << '\n';
+    }
+}
+
+void AlarmManager::LoadLog(std::istream& in) {
+    log_.clear();
+    next_seq_ = 1;
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty()) continue;
+        std::istringstream ls(line);
+        unsigned    seq = 0;
+        int         code = 0;
+        std::string sev, name;
+        if (!(ls >> seq >> code >> sev >> name)) continue; // malformed line
+        std::string message;
+        std::getline(ls, message);
+        message = Trim(message);
+
+        Alarm a;
+        a.code     = code;
+        a.severity = SeverityFromString(sev);
+        a.name     = name;
+        a.message  = message;
+        log_.push_back({seq, std::move(a)});
+        if (seq >= next_seq_) next_seq_ = seq + 1; // keep sequence monotonic
+    }
 }
 
 } // namespace oml

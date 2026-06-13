@@ -61,9 +61,9 @@ With a proven execution model, specialize it.
       `PickAndPlace`) as instances of the model, not forks of it.
 - [x] A `Host` manages multiple devices uniformly (register/lifecycle/status);
       ADR-0012. (Running several concurrently waits for the Phase 3 pool.)
-- [x] Persistence: machine state/fault history (`History`, ADR-0014) and recipes
-      (`ActionRegistry` + `RecipeSpec`, ADR-0015). Device configuration files
-      still pending.
+- [x] Persistence: machine state/fault history (`History`, ADR-0014), recipes
+      (`ActionRegistry` + `RecipeSpec`, ADR-0015), and device configuration
+      (`DeviceConfig`, ADR-0016; `DieBonder` reads channels/positions from it).
 - [ ] Interfacing: SECS/GEM, PLC, host integration — each added only when a
       target device requires it.
 

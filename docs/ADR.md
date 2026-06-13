@@ -413,3 +413,27 @@ reference them by name — opted into per device. The format is a trivial text l
 format (no JSON/TOML dependency); a richer format can replace it later behind the
 same `SaveRecipe`/`LoadRecipe` interface.
 
+## ADR-0016 — Persist device configuration via DeviceConfig
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** A device's installation-specific values (I/O channel mappings, axis
+positions, flags) were hardcoded as `constexpr` in the device headers. Changing a
+deployment meant recompiling. Config is distinct from recipe (what to run) and
+history (what happened): it is *how a device is wired*.
+
+**Decision.** Add a `DeviceConfig` (`config/DeviceConfig.h`): a key/value store
+with typed getters (string/long/bool, each with a fallback) and `Save`/`Load` to
+a text format ("`key = value`" per line; `#` comments and blank lines allowed).
+A device reads its values from a `DeviceConfig`, falling back to built-in
+defaults. The `DieBonder` is retrofitted: its channels and axis positions come
+from a config (defaults preserve the old behavior); omit the argument to use
+defaults.
+
+**Consequences.** Deployments can override a device's wiring without recompiling
+(load a config file, construct the device with it). The format is trivial text
+(no JSON/TOML dependency); a richer format can replace it behind the same
+interface. Config is opt-in per device (`DieBonder` uses it; `PickAndPlace` keeps
+hardcoded values for now) — consistent with how recipes opted in (ADR-0015).
+

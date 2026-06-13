@@ -103,6 +103,7 @@ OpenMachineLab
 ├── workflow/     Workflow + Step; ActionRegistry + RecipeSpec (recipe persistence)
 ├── state/        MachineState - lifecycle
 ├── history/      History - persistable lifecycle/fault journal
+├── config/       DeviceConfig - persistable device configuration
 ├── log/          Logger - redirectable, thread-safe trace sink
 ├── device/       Device - named profile over a Machine
 ├── host/         Host - manages many devices uniformly
@@ -258,6 +259,7 @@ OpenMachineLab
 ├── workflow/     Workflow + Step；ActionRegistry + RecipeSpec（配方持久化）
 ├── state/        MachineState - 生命周期
 ├── history/      History - 可持久化的生命周期/故障日志
+├── config/       DeviceConfig - 可持久化的设备配置
 ├── log/          Logger - 可重定向、线程安全的日志 sink
 ├── device/       Device - 基于 Machine 的具名 profile
 ├── host/         Host - 统一管理多台设备

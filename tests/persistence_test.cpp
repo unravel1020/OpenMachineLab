@@ -7,6 +7,7 @@
 //     reproduces the recipe and runs it; an unknown action name yields no build.
 #include "oml_test.h"
 
+#include "config/DeviceConfig.h"
 #include "history/History.h"
 #include "machine/Machine.h"
 #include "module/Module.h"
@@ -38,6 +39,7 @@ public:
     void Run() override {
         TestHistoryRoundTrip();
         TestRecipeRoundTrip();
+        TestConfigRoundTrip();
     }
 
 private:
@@ -122,6 +124,32 @@ private:
         const RecipeSpec bad{"Bad", {{"X", "does_not_exist"}}};
         Invariant(BuildWorkflow(bad, registry) == nullptr,
                   "unknown action name -> no workflow");
+    }
+
+    void TestConfigRoundTrip() {
+        DeviceConfig cfg;
+        cfg.Set("part_present_di", "7");
+        cfg.Set("load_pos", "123");
+        cfg.Set("use_vision", "true");
+
+        std::ostringstream out;
+        cfg.Save(out);
+        DeviceConfig loaded;
+        std::istringstream in(out.str());
+        loaded.Load(in);
+
+        Invariant(loaded.GetLong("part_present_di", 0) == 7, "long value round-trips");
+        Invariant(loaded.GetLong("load_pos", 0) == 123, "long value round-trips");
+        Invariant(loaded.GetBool("use_vision", false), "bool value round-trips");
+        Invariant(loaded.GetString("load_pos") == "123", "string value round-trips");
+        Invariant(loaded.GetLong("missing_key", 99) == 99, "missing key -> fallback");
+
+        // '#' comments and blank lines are ignored on Load.
+        std::istringstream file("# die bonder config\n\npart_present_di = 5\nload_pos = 999\n");
+        DeviceConfig from_file;
+        from_file.Load(file);
+        Invariant(from_file.GetLong("part_present_di", 0) == 5, "comments/blank lines ignored");
+        Invariant(from_file.GetLong("load_pos", 0) == 999, "'key = value' with spaces parsed");
     }
 };
 

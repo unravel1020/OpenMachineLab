@@ -2,6 +2,7 @@
 
 #include "machine/Machine.h"
 
+#include <iostream>
 #include <string>
 #include <thread>
 
@@ -14,7 +15,9 @@ namespace oml::example {
 class OperatorConsole {
 public:
     explicit OperatorConsole(Machine& machine)
-        : machine_(machine), thread_([this] { AwaitStop(); }) {}
+        : machine_(machine), thread_([this] { AwaitStop(); }) {
+        std::cout << "\n>>> press <Enter> to stop the machine <<<\n";
+    }
 
     // Block until the operator has issued the stop command.
     void Wait() {

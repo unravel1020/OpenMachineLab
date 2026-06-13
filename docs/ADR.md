@@ -179,3 +179,28 @@ This decision intentionally does not introduce an `AlarmManager`, event bus, sch
 
 The core model remains minimal: states describe the machine condition, while fault causes and handling logic stay in higher-level application code.
 
+## ADR-0008 — Phase 2: concrete resources and modules live in the library
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** Phase 1 kept the library abstract: `Resource` and `Module` were
+pure interfaces, and the only concrete classes were defined inline in the
+example's `main.cpp`. As more devices are modeled, each would re-derive the same
+trivial `Axis`/`Camera` and motion/vision modules — pure duplication. This is
+the Phase 2 step from [RoadMap](RoadMap.md): "give resources a reason to exist;
+a module can actually use a resource."
+
+**Decision.** Promote the concrete, reusable parts into the library:
+`resource/Axis` and `resource/Camera` (simulated stubs with a minimal exercisable
+interface), and `module/MotionModule` / `module/VisionModule` (modules that own a
+resource and drive it on `Initialize`). Device-specific concerns — the recipe and
+the operator console — stay in the example. `main.cpp` becomes a pure entry point
+that assembles library parts and drives the lifecycle.
+
+**Consequences.** The library now ships standard building blocks a device
+composes, not only abstract interfaces. The new classes are header-only, so the
+CMake source list is unchanged. Device-specific concrete types (e.g. a `BondHead`)
+still belong to application code — only broadly reusable parts are promoted into
+the library.
+

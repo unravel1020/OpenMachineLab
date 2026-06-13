@@ -16,11 +16,13 @@ abstractions and the `minimal_machine` example runs the full lifecycle.
 
 ## Phase 2 — Make the abstractions do something
 
-Right now resources and modules are names. Give them a reason to exist without
-betting on an architecture.
+Resources and modules were bare names; they now have minimal behavior and
+modules use resources (`MotionModule`→`Axis`, `VisionModule`→`Camera`), promoted
+into the library (ADR-0008). The items below extend this without betting on an
+architecture.
 
-- [ ] Canonical resource stubs: `Axis`, `Camera`, `DigitalIO` (simulated, no
-      hardware) so a module can actually *use* a resource.
+- [x] Canonical resource stubs: `Axis`, `Camera` (simulated) — done; a module can
+      actually *use* a resource. `DigitalIO` still pending.
 - [ ] Richer `Module` lifecycle: `Configure` / `Start` / `Stop` / `Reset`,
       added only as the example demands.
 - [ ] Workflow control: failure of a step, conditional branching — only if a

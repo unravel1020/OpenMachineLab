@@ -35,13 +35,15 @@ Acceptance demo (`examples/minimal_machine`):
 | Case | What it shows |
 |------|----------------|
 | 1 | `Machine machine;` creates a virtual device |
-| 2 | two resources (`AxisResource`, `CameraResource`) |
-| 3 | two modules (`ModuleA`, `ModuleB`) |
+| 2 | two resources (`Axis`, `Camera`) |
+| 3 | two modules that use them (`MotionModule`, `VisionModule`) |
 | 4 | a per-part recipe (`LoadFrame → Align → Bond → Unload`) |
 | 5 | runs in a loop until the operator issues `Stop()`, then `Stopping → Stopped` |
 
-The lifecycle is `Created → Initializing → Ready → Running → Stopping → Stopped`.
-`Running` is not a single pass: the machine loops, running the recipe once per
+The core lifecycle is `Created → Initializing → Ready → Running → Stopping →
+Stopped`. (The enum also reserves `Fault`, `Paused`, and `Recovering` for later
+phases; nothing transitions to them yet.) `Running` is not a single pass: the
+machine loops, running the recipe once per
 cycle, until `Stop()` is requested — that is what makes it a machine rather than
 a script. `Stopping` is the transient "shutting down" state (parking resources,
 closing modules) before the machine is fully `Stopped`; in Phase 1 it is a
@@ -53,10 +55,10 @@ Expected output (the loop runs until you press Enter):
 Created
  v
 Initializing
-    Resource AxisResource
-    Resource CameraResource
-    Module ModuleA Initialized
-    Module ModuleB Initialized
+    Resource Axis
+    Resource Camera
+    Module MotionModule Initialized
+    Module VisionModule Initialized
  v
 Ready
  v
@@ -81,12 +83,12 @@ Stopped
 ```
 OpenMachineLab
 ├── machine/      Machine - the runtime root
-├── module/       Module  - functional unit interface
-├── resource/     Resource - capability interface
+├── module/       Module + MotionModule, VisionModule (Phase 2)
+├── resource/     Resource + Axis, Camera (Phase 2 stubs)
 ├── workflow/     Workflow + Step - ordered work
 ├── state/        MachineState - lifecycle
 ├── examples/
-│   └── minimal_machine/   the Phase 1 acceptance demo
+│   └── minimal_machine/   entry point + Recipe + OperatorConsole
 └── docs/         ADR.md, RoadMap.md
 ```
 
@@ -168,12 +170,13 @@ Machine
 | 用例 | 展示内容 |
 |------|----------|
 | 1 | `Machine machine;` 创建一个虚拟设备 |
-| 2 | 两个资源（`AxisResource`、`CameraResource`） |
-| 3 | 两个模块（`ModuleA`、`ModuleB`） |
+| 2 | 两个资源（`Axis`、`Camera`） |
+| 3 | 使用资源的两个模块（`MotionModule`、`VisionModule`） |
 | 4 | 单工件配方（`LoadFrame → Align → Bond → Unload`） |
 | 5 | 循环运行，直到操作员下达 `Stop()`，然后 `Stopping → Stopped` |
 
-生命周期为 `Created → Initializing → Ready → Running → Stopping → Stopped`。
+核心生命周期为 `Created → Initializing → Ready → Running → Stopping → Stopped`
+（枚举还预留了 `Fault`、`Paused`、`Recovering` 供后续阶段使用，目前没有任何流程进入它们）。
 `Running` 不是跑一遍：设备会循环，每个 cycle 执行一次配方，直到收到 `Stop()` 请求——
 这才是"机器"而非"脚本"。`Stopping` 是"正在关机"的瞬态（回零资源、关闭模块），之后才完全
 `Stopped`；第一阶段里它只是占位，真正的停止逻辑推迟到后续阶段。
@@ -184,10 +187,10 @@ Machine
 Created
  v
 Initializing
-    Resource AxisResource
-    Resource CameraResource
-    Module ModuleA Initialized
-    Module ModuleB Initialized
+    Resource Axis
+    Resource Camera
+    Module MotionModule Initialized
+    Module VisionModule Initialized
  v
 Ready
  v
@@ -212,12 +215,12 @@ Stopped
 ```
 OpenMachineLab
 ├── machine/      Machine - 运行模型根
-├── module/       Module  - 功能单元接口
-├── resource/     Resource - 能力接口
+├── module/       Module + MotionModule、VisionModule（第二阶段）
+├── resource/     Resource + Axis、Camera（第二阶段桩）
 ├── workflow/     Workflow + Step - 有序工作
 ├── state/        MachineState - 生命周期
 ├── examples/
-│   └── minimal_machine/   第一阶段验收示例
+│   └── minimal_machine/   入口 + Recipe + OperatorConsole
 └── docs/         ADR.md, RoadMap.md
 ```
 

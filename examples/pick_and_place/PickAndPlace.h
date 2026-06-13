@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-namespace oml::example {
+namespace oml::example::pick_and_place {
 
 // Device-specific channels/positions for the pick-and-place. (DI and DO are
 // separate line spaces; channel 0 is reserved by IoModule for e-stop / light.)
@@ -21,7 +21,7 @@ constexpr long kFeederPos      = 0;
 constexpr long kPlacePos       = 500;
 constexpr long kHomePos        = 0;
 
-inline std::unique_ptr<Workflow> BuildPickAndPlaceRecipe(Axis& axis, DigitalIO& io) {
+inline std::unique_ptr<Workflow> BuildRecipe(Axis& axis, DigitalIO& io) {
     auto recipe = std::make_unique<Workflow>("PickAndPlace");
 
     recipe->AddStep("Pick", [&] {
@@ -56,9 +56,12 @@ inline std::unique_ptr<Workflow> BuildPickAndPlaceRecipe(Axis& axis, DigitalIO& 
     return recipe;
 }
 
+} // namespace oml::example::pick_and_place
+
+namespace oml::example {
+
 // A pick-and-place device profile: a gantry axis and a vacuum I/O block. A
-// different resource/module set and a different recipe than the DieBonder, on
-// the exact same model - proving the Device abstraction is device-agnostic.
+// different resource set and recipe than the DieBonder, on the same model.
 class PickAndPlace : public Device {
 public:
     PickAndPlace() : Device("PickAndPlace") {
@@ -73,8 +76,8 @@ public:
         AddModule(std::make_unique<MotionModule>(axis_ref));
         AddModule(std::make_unique<IoModule>(io_ref));
 
-        io_ref.SimulateInput(kPartAtFeederDi, true); // part available
-        AddWorkflow(BuildPickAndPlaceRecipe(axis_ref, io_ref));
+        io_ref.SimulateInput(pick_and_place::kPartAtFeederDi, true); // part available
+        AddWorkflow(pick_and_place::BuildRecipe(axis_ref, io_ref));
     }
 };
 

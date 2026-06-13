@@ -36,6 +36,7 @@ endif()
 # Phase 1 layout: one folder per concept. There is no "core" umbrella on
 # purpose - the model is small enough that one library covers it.
 add_library(OpenMachineLab STATIC
+    host/Host.cpp
     log/Logger.cpp
     state/MachineState.cpp
     workflow/Workflow.cpp
@@ -49,6 +50,7 @@ target_include_directories(OpenMachineLab PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # --- examples ------------------------------------------------------------
 add_subdirectory(examples/minimal_machine)
 add_subdirectory(examples/pick_and_place)
+add_subdirectory(examples/host_demo)
 
 # --- tests ---------------------------------------------------------------
 add_subdirectory(tests)

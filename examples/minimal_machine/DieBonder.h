@@ -14,8 +14,8 @@
 namespace oml::example {
 
 // A die-bonder device profile: an axis, a camera, and an I/O block, each driven
-// by a module, running the load -> align -> bond -> unload recipe. Demonstrates
-// a concrete device built on the generic model via the Device facade.
+// by a module, running the load -> align -> bond -> unload recipe. A concrete
+// device built on the generic model via the Device facade.
 class DieBonder : public Device {
 public:
     DieBonder() : Device("DieBonder") {
@@ -35,8 +35,8 @@ public:
         AddModule(std::make_unique<IoModule>(io_ref));
 
         // Feed a part so LoadFrame's precondition is satisfied.
-        io_ref.SimulateInput(kPartPresentDi, true);
-        AddWorkflow(BuildRecipe(axis_ref, camera_ref, io_ref));
+        io_ref.SimulateInput(die_bonder::kPartPresentDi, true);
+        AddWorkflow(die_bonder::BuildRecipe(axis_ref, camera_ref, io_ref));
     }
 };
 

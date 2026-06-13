@@ -9,24 +9,18 @@
 #include <memory>
 #include <string>
 
-namespace oml::example {
+namespace oml::example::die_bonder {
 
-// Device-specific I/O channels and axis positions for the demo device. DI and
-// DO are separate line spaces, so a DI channel and a DO channel may share a
-// number (channel 0 is reserved by IoModule for e-stop / ready light).
+// Device-specific I/O channels and axis positions for the die bonder. DI and DO
+// are separate line spaces; channel 0 is reserved by IoModule (e-stop / light).
 constexpr int  kPartPresentDi = 1; // DI: "part present at the load station"
 constexpr int  kVacuumDo      = 1; // DO: vacuum pick
 constexpr long kLoadPos       = 100;
 constexpr long kAlignPos      = 200;
 constexpr long kUnloadPos     = 300;
 
-// The per-part recipe for the demo device. Unlike the earlier no-op recipe, it
-// actually drives the resources each cycle: the axis moves through the
-// stations, the camera triggers at align, and the vacuum picks/releases.
-//
-// LoadFrame has a real precondition: it fails (and faults the machine) when no
-// part is present. Feed one with io.SimulateInput(kPartPresentDi, true) for the
-// happy path; withhold it to watch the machine fault.
+// The per-part recipe: axis through the stations, camera at align, vacuum
+// pick/release. LoadFrame fails (-> Fault) when no part is present.
 inline std::unique_ptr<Workflow> BuildRecipe(Axis& axis, Camera& camera, DigitalIO& io) {
     auto recipe = std::make_unique<Workflow>("Recipe");
 
@@ -65,4 +59,4 @@ inline std::unique_ptr<Workflow> BuildRecipe(Axis& axis, Camera& camera, Digital
     return recipe;
 }
 
-} // namespace oml::example
+} // namespace oml::example::die_bonder

@@ -45,8 +45,11 @@ do.
 
 - [x] Logging is already redirectable and thread-safe (`Logger`, ADR-0010) — the
       run loop, recipe, and tests all route through it.
-- [ ] Decide between cooperative steps, a thread per module, or an actor model
-      — **driven by a real bottleneck**, then documented as an ADR.
+- [ ] Concurrency via a generic **task/delegate pool**: a device submits subtasks
+      (e.g. "trigger vision" + "move the axis" in parallel during PR) and the pool
+      executes them. Chosen so the parallelism *mechanism* stays decoupled from
+      device logic, swappable, and unit-testable with a synchronous pool — and so
+      each real flow is built on its real scenario, not a guessed scheduler.
 - [ ] Resource arbitration (who owns the shared axis right now?).
 - [ ] Cancellation and `Stopping` semantics that actually abort in-flight work.
 
@@ -56,6 +59,8 @@ With a proven execution model, specialize it.
 
 - [x] A `Device` facade (ADR-0011) + two concrete profiles (`DieBonder`,
       `PickAndPlace`) as instances of the model, not forks of it.
+- [x] A `Host` manages multiple devices uniformly (register/lifecycle/status);
+      ADR-0012. (Running several concurrently waits for the Phase 3 pool.)
 - [ ] Persistence: recipes, configuration, persisted state.
 - [ ] Interfacing: SECS/GEM, PLC, host integration — each added only when a
       target device requires it.

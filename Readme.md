@@ -104,9 +104,11 @@ OpenMachineLab
 ├── state/        MachineState - lifecycle
 ├── log/          Logger - redirectable, thread-safe trace sink
 ├── device/       Device - named profile over a Machine
+├── host/         Host - manages many devices uniformly
 ├── examples/
 │   ├── minimal_machine/   DieBonder profile (load/align/bond/unload)
-│   └── pick_and_place/    PickAndPlace profile (pick/transfer/place/home)
+│   ├── pick_and_place/    PickAndPlace profile (pick/transfer/place/home)
+│   └── host_demo/         one Host managing both devices
 ├── tests/        TestBase + lifecycle/perf/safety tests (CTest)
 └── docs/         ADR.md, RoadMap.md
 ```
@@ -256,9 +258,11 @@ OpenMachineLab
 ├── state/        MachineState - 生命周期
 ├── log/          Logger - 可重定向、线程安全的日志 sink
 ├── device/       Device - 基于 Machine 的具名 profile
+├── host/         Host - 统一管理多台设备
 ├── examples/
 │   ├── minimal_machine/   DieBonder profile（load/align/bond/unload）
-│   └── pick_and_place/    PickAndPlace profile（pick/transfer/place/home）
+│   ├── pick_and_place/    PickAndPlace profile（pick/transfer/place/home）
+│   └── host_demo/         一个 Host 同时管理两台设备
 ├── tests/        TestBase + lifecycle/perf/safety 测试（CTest）
 └── docs/         ADR.md, RoadMap.md
 ```

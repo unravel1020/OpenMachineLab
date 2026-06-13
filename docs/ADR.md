@@ -272,3 +272,24 @@ IoC (those wait for a concrete need, per ADR-0003). `Device` holds a `Machine`,
 so it is non-copyable/non-movable; it is created in place, like the devices it
 models.
 
+## ADR-0012 — A Host manages multiple devices uniformly
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** With the Device facade (ADR-0011) a host process can create devices,
+but each is managed ad hoc — there is no uniform way to register, control, or
+query several at once. A real line has multiple devices; a supervisor needs one
+handle over all of them.
+
+**Decision.** Introduce a `Host` (`host/Host.h`) that owns a set of Devices,
+registers them by name, and drives the non-blocking lifecycle uniformly
+(`InitializeAll`/`StopAll`/`ResetAll`/`ShutdownAll`) plus a `Status()` snapshot.
+Per-device access is via `Find(name)`.
+
+**Consequences.** One handle manages any number of devices the same way — the
+"hosting" layer over `Device`. `Host` deliberately does NOT centralize `Run()`
+(it blocks, and running several devices concurrently is the future task/delegate
+pool's job, RoadMap Phase 3). For now a single-threaded host runs one device at a
+time via `Find(name)->Run()`; concurrent running waits for the pool.
+

@@ -84,7 +84,7 @@ Stopped
 OpenMachineLab
 ├── machine/      Machine - the runtime root
 ├── module/       Module + MotionModule, VisionModule (Phase 2)
-├── resource/     Resource + Axis, Camera (Phase 2 stubs)
+├── resource/     Resource + Axis, Camera, DigitalIO (Phase 2 stubs)
 ├── workflow/     Workflow + Step - ordered work
 ├── state/        MachineState - lifecycle
 ├── examples/
@@ -216,7 +216,7 @@ Stopped
 OpenMachineLab
 ├── machine/      Machine - 运行模型根
 ├── module/       Module + MotionModule、VisionModule（第二阶段）
-├── resource/     Resource + Axis、Camera（第二阶段桩）
+├── resource/     Resource + Axis、Camera、DigitalIO（第二阶段桩）
 ├── workflow/     Workflow + Step - 有序工作
 ├── state/        MachineState - 生命周期
 ├── examples/

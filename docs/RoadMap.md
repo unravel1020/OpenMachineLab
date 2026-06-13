@@ -21,8 +21,8 @@ modules use resources (`MotionModule`→`Axis`, `VisionModule`→`Camera`), prom
 into the library (ADR-0008). The items below extend this without betting on an
 architecture.
 
-- [x] Canonical resource stubs: `Axis`, `Camera` (simulated) — done; a module can
-      actually *use* a resource. `DigitalIO` still pending.
+- [x] Canonical resource stubs: `Axis`, `Camera`, `DigitalIO` (simulated) — done;
+      a module can actually *use* a resource.
 - [ ] Richer `Module` lifecycle: `Configure` / `Start` / `Stop` / `Reset`,
       added only as the example demands.
 - [ ] Workflow control: failure of a step, conditional branching — only if a

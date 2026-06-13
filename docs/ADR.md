@@ -204,3 +204,22 @@ CMake source list is unchanged. Device-specific concrete types (e.g. a `BondHead
 still belong to application code — only broadly reusable parts are promoted into
 the library.
 
+## ADR-0009 — Stop request is a sticky flag, cleared only by Reset
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** The run loop exits when `Stop()` sets `stop_requested_`. The first
+implementation cleared the flag at the start of `Run()` "for a fresh run." That
+creates a race: if `Stop()` is signalled just before `Run()` reaches the clear,
+the clear clobbers the request and the loop never stops. The Phase 2 safety
+tests (which fire `Stop()` concurrently with `Run()`) hung on exactly this.
+
+**Decision.** `stop_requested_` is sticky: `Stop()` sets it and only `Reset()`
+clears it. A stop signalled before or during `Run()` is therefore never lost.
+
+**Consequences.** The stop signal is safe under concurrency — a prerequisite for
+the Phase 3 execution model. The cost is a minor rule: a machine that has been
+stopped cannot `Run()` again until it is `Reset()`. That is acceptable; a real
+device does not resume production after a stop without an explicit recovery.
+

@@ -57,7 +57,8 @@ void Machine::Run() {
     // A real machine keeps working until it is told to stop, not just once.
     // Each iteration is one production cycle: the recipe runs, then the machine
     // either ticks again or exits. The loop ends on Stop() OR on a failing step.
-    stop_requested_.store(false);
+    // stop_requested_ is sticky: Stop() sets it and only Reset() clears it, so a
+    // stop signalled before or during Run is never lost (no reset-on-start race).
     unsigned long long cycle = 0;
     bool failed = false;
     while (!stop_requested_.load() && !failed) {
@@ -99,6 +100,7 @@ void Machine::Stop() {
 }
 
 void Machine::Reset() {
+    stop_requested_.store(false); // allow a fresh Run after recovery
     TransitionTo(MachineState::Recovering);
     for (const auto& module : modules_) {
         module->Reset();

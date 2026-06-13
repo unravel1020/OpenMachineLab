@@ -98,7 +98,7 @@ OpenMachineLab
 ├── state/        MachineState - lifecycle
 ├── examples/
 │   └── minimal_machine/   entry point + Recipe + OperatorConsole
-├── tests/        lifecycle_test (CTest)
+├── tests/        TestBase + lifecycle/perf/safety tests (CTest)
 └── docs/         ADR.md, RoadMap.md
 ```
 
@@ -134,7 +134,8 @@ exact per-file flags.
 Running `minimal_machine` blocks in its run loop — **press Enter to stop it**
 and watch it go `Stopping → Stopped`.
 
-Run the lifecycle tests with `ctest --test-dir build`.
+Run the test suite with `ctest --test-dir build` — lifecycle, perf, and safety
+tests, all on a shared `TestBase` (`tests/oml_test.h`).
 
 ## Editor setup
 
@@ -241,7 +242,7 @@ OpenMachineLab
 ├── state/        MachineState - 生命周期
 ├── examples/
 │   └── minimal_machine/   入口 + Recipe + OperatorConsole
-├── tests/        lifecycle_test（CTest）
+├── tests/        TestBase + lifecycle/perf/safety 测试（CTest）
 └── docs/         ADR.md, RoadMap.md
 ```
 
@@ -275,6 +276,6 @@ cmake --build build
 
 运行 `minimal_machine` 会阻塞在运行循环里——**按回车停止**，观察它进入 `Stopping → Stopped`。
 
-用 `ctest --test-dir build` 运行生命周期测试。
+用 `ctest --test-dir build` 运行测试套件（lifecycle / perf / safety，均基于共享的 `TestBase`：`tests/oml_test.h`）。
 
 设计决策见 [docs/ADR.md](docs/ADR.md)，第一阶段之后的规划见 [docs/RoadMap.md](docs/RoadMap.md)。

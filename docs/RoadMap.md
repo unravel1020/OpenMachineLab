@@ -28,17 +28,20 @@ architecture.
 - [x] Workflow control: a failing step stops the workflow and faults the machine
       (`Fault`); `Reset()` recovers through `Recovering`. Conditional branching
       still deferred until a recipe needs it.
-- [x] Tests: `lifecycle_test` (CTest) covers state transitions, the module
-      lifecycle hooks, and the failure -> Fault -> Reset path.
+- [x] Tests: a shared `TestBase` (`tests/oml_test.h`) backs lifecycle, perf, and
+      safety suites (CTest). The safety tests already caught a lost-stop race,
+      fixed by the sticky stop flag (ADR-0009).
 
 ## Phase 3 — Concurrency and the execution model
 
 A real device runs modules concurrently and shares resources. This is where an
 execution abstraction earns its place.
 
-Phase 1 already has a single-threaded run loop with a stop-request signal
-(ADR-0006). This phase is about genuine parallelism — several modules or
-workflows running at once — which the single-cycle loop does not yet do.
+The run loop is single-threaded, but its stop-request signal is already
+concurrency-safe (a sticky flag — ADR-0006 / ADR-0009), and the safety tests
+stress it from many threads. This phase is about genuine parallelism — several
+modules or workflows running at once — which the single-cycle loop does not yet
+do.
 
 - [ ] Decide between cooperative steps, a thread per module, or an actor model
       — **driven by a real bottleneck**, then documented as an ADR.

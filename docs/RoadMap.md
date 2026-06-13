@@ -54,8 +54,8 @@ do.
 
 With a proven execution model, specialize it.
 
-- [ ] A first real device profile (e.g. a generic pick-and-place) as an
-      instance of the model, not a fork of it.
+- [x] A `Device` facade (ADR-0011) + two concrete profiles (`DieBonder`,
+      `PickAndPlace`) as instances of the model, not forks of it.
 - [ ] Persistence: recipes, configuration, persisted state.
 - [ ] Interfacing: SECS/GEM, PLC, host integration — each added only when a
       target device requires it.

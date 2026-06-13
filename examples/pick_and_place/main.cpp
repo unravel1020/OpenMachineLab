@@ -1,9 +1,9 @@
-// minimal_machine - runs the DieBonder device profile.
+// pick_and_place - runs the PickAndPlace device profile.
 //
-// main() only creates a device and drives its lifecycle. All composition lives
-// in the device profile (DieBonder); the generic model and reusable parts live
-// in the library. This is the template every concrete device's main follows.
-#include "DieBonder.h"
+// Same main shape as minimal_machine: create a device, drive its lifecycle, stop
+// on stdin. The device-specifics (resources, modules, recipe) live in the
+// profile; only the profile differs between this and the die bonder.
+#include "PickAndPlace.h"
 #include "log/Logger.h"
 
 #include <iostream>
@@ -13,10 +13,9 @@
 using namespace oml::example;
 
 int main() {
-    DieBonder device;
+    PickAndPlace device;
 
     oml::Log().Info("\n>>> press <Enter> to stop the " + device.Name() + " <<<");
-    // Operator stop: a background thread reads stdin and requests Stop.
     std::thread stopper([&device] {
         std::string line;
         std::getline(std::cin, line);

@@ -103,8 +103,10 @@ OpenMachineLab
 ├── workflow/     Workflow + Step - ordered work
 ├── state/        MachineState - lifecycle
 ├── log/          Logger - redirectable, thread-safe trace sink
+├── device/       Device - named profile over a Machine
 ├── examples/
-│   └── minimal_machine/   entry point + Recipe + OperatorConsole
+│   ├── minimal_machine/   DieBonder profile (load/align/bond/unload)
+│   └── pick_and_place/    PickAndPlace profile (pick/transfer/place/home)
 ├── tests/        TestBase + lifecycle/perf/safety tests (CTest)
 └── docs/         ADR.md, RoadMap.md
 ```
@@ -253,8 +255,10 @@ OpenMachineLab
 ├── workflow/     Workflow + Step - 有序工作
 ├── state/        MachineState - 生命周期
 ├── log/          Logger - 可重定向、线程安全的日志 sink
+├── device/       Device - 基于 Machine 的具名 profile
 ├── examples/
-│   └── minimal_machine/   入口 + Recipe + OperatorConsole
+│   ├── minimal_machine/   DieBonder profile（load/align/bond/unload）
+│   └── pick_and_place/    PickAndPlace profile（pick/transfer/place/home）
 ├── tests/        TestBase + lifecycle/perf/safety 测试（CTest）
 └── docs/         ADR.md, RoadMap.md
 ```

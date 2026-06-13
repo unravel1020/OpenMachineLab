@@ -246,3 +246,29 @@ The cost is one global instance and string-building at call sites — acceptable
 for a cross-cutting concern. Only the three needed levels exist; structured
 logging, filtering, and per-module sinks wait for a concrete need.
 
+## ADR-0011 — A Device facade: named profiles over a Machine
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** Phases 1-2 left device composition in each example's `main.cpp`.
+That proved the model runs, but as more devices appear the composition is
+duplicated per device and there is no uniform handle a host or tool can manage.
+Two side-by-side examples would show generality but would not help future
+expansion.
+
+**Decision.** Introduce a thin `Device` facade (`device/Device.h`): a named
+object that owns a `Machine`, exposes the uniform lifecycle (`Initialize`/`Run`/
+`Stop`/`Reset`/`Shutdown` + `State`), and offers protected `Add*` composition
+helpers. A concrete device is a `Device` subclass that populates its resources,
+modules, and workflow in its own constructor. Two profiles now exist —
+`DieBonder` and `PickAndPlace` — with different resource sets and recipes on the
+same model.
+
+**Consequences.** Every device has the same interface, so hosting, tooling, and
+tests can treat them uniformly; adding a device is a new profile, not a fork.
+The facade is intentionally thin — no plugin system, registry, config loader, or
+IoC (those wait for a concrete need, per ADR-0003). `Device` holds a `Machine`,
+so it is non-copyable/non-movable; it is created in place, like the devices it
+models.
+

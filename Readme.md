@@ -105,6 +105,7 @@ OpenMachineLab
 ├── history/      History - persistable lifecycle/fault journal
 ├── config/       DeviceConfig - persistable device configuration
 ├── log/          Logger - redirectable, thread-safe trace sink
+├── event/        EventBus - pub/sub spine for events
 ├── device/       Device - named profile over a Machine
 ├── host/         Host - manages many devices uniformly
 ├── examples/
@@ -262,6 +263,7 @@ OpenMachineLab
 ├── history/      History - 可持久化的生命周期/故障日志
 ├── config/       DeviceConfig - 可持久化的设备配置
 ├── log/          Logger - 可重定向、线程安全的日志 sink
+├── event/        EventBus - 事件发布/订阅脊梁
 ├── device/       Device - 基于 Machine 的具名 profile
 ├── host/         Host - 统一管理多台设备
 ├── examples/

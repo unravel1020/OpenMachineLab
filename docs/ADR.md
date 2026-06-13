@@ -437,3 +437,30 @@ defaults.
 interface. Config is opt-in per device (`DieBonder` uses it; `PickAndPlace` keeps
 hardcoded values for now) — consistent with how recipes opted in (ADR-0015).
 
+## ADR-0017 — An EventBus spine for observability
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** Observability was split across Logger (text trace) and History
+(structured journal), each wired directly. There was no single spine a host, UI,
+or future alarm system could tap; every new observer meant touching the emitters.
+Phase 1 explicitly deferred an event bus; the Alarm work (next) makes the need
+concrete — this is the justified moment (ADR-0003).
+
+**Decision.** Add a minimal `EventBus` (`event/EventBus.h`): `Subscribe(handler)`
+returns a token, `Unsubscribe`, `Publish`. Events are a `std::variant`
+(`StateChanged` first; alarm events added with the Alarm system). Each `Machine`
+owns a bus (`Machine::Bus()`) and publishes `StateChanged` on every transition.
+Subscribers (History, Logger, a UI, a host) react without the emitter knowing
+them.
+
+`Publish` snapshots handlers under the lock and invokes them outside it, so a
+handler may re-enter the bus without dead-locking; the bus is thread-safe for the
+concurrency work.
+
+**Consequences.** One decoupled spine for all observers; adding an observer no
+longer touches emitters. The cost is an indirection per event (negligible).
+History still journals directly for now; it can become a subscriber later (single
+source of truth) without changing emitters.
+

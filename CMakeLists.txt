@@ -37,6 +37,7 @@ endif()
 # purpose - the model is small enough that one library covers it.
 add_library(OpenMachineLab STATIC
     config/DeviceConfig.cpp
+    event/EventBus.cpp
     history/History.cpp
     host/Host.cpp
     log/Logger.cpp

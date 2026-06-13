@@ -67,6 +67,11 @@ With a proven execution model, specialize it.
 - [ ] Interfacing: SECS/GEM, PLC, host integration — each added only when a
       target device requires it.
 
+## Cross-cutting: events & alarms
+
+- [x] EventBus pub/sub spine (ADR-0017): `Machine` publishes `StateChanged`; any
+      subscriber (History, Logger, UI, host) reacts without touching emitters.
+
 ## Standing rule
 
 Before adding any abstraction from Phase 2 onward, ask: *what recurring pain

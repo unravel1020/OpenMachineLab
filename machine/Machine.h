@@ -1,5 +1,6 @@
 #pragma once
 
+#include "event/EventBus.h"
 #include "module/Module.h"
 #include "resource/Resource.h"
 #include "state/MachineState.h"
@@ -54,6 +55,9 @@ public:
     // Optional: journal lifecycle events (transitions + faults) for persistence.
     void SetHistory(History* history) { history_ = history; }
 
+    // Publish/subscribe bus for Events (state changes; alarms come later).
+    EventBus& Bus() { return bus_; }
+
 private:
     // Apply a state change: annotate the journal (if any) and emit the trace.
     void TransitionTo(MachineState next, std::string note = "");
@@ -63,6 +67,7 @@ private:
     // Stop() may be called from a different thread than the one in Run().
     std::atomic<bool>                      stop_requested_{false};
     History*                               history_ = nullptr;
+    EventBus                               bus_;
     std::vector<std::unique_ptr<Resource>> resources_;
     std::vector<std::unique_ptr<Module>>   modules_;
     std::vector<std::unique_ptr<Workflow>> workflows_;

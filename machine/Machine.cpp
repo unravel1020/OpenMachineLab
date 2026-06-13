@@ -117,8 +117,10 @@ void Machine::Shutdown() {
 }
 
 void Machine::TransitionTo(MachineState next, std::string note) {
+    const MachineState from = state_;
     state_ = next;
     if (history_) history_->Record(next, note);
+    bus_.Publish(StateChanged{from, next, std::move(note)});
     Log().Info(" v");
     Log().Info(std::string{ToString(state_)});
 }

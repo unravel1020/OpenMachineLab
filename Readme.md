@@ -41,8 +41,9 @@ Acceptance demo (`examples/minimal_machine`):
 | 5 | runs in a loop until the operator issues `Stop()`, then `Stopping → Stopped` |
 
 The core lifecycle is `Created → Initializing → Ready → Running → Stopping →
-Stopped`. (The enum also reserves `Fault`, `Paused`, and `Recovering` for later
-phases; nothing transitions to them yet.) `Running` is not a single pass: the
+Stopped`. A failing workflow step sends the machine to `Fault`, and `Reset()`
+recovers through `Recovering` back to `Ready`. (`Paused` is still reserved.)
+`Running` is not a single pass: the
 machine loops, running the recipe once per
 cycle, until `Stop()` is requested — that is what makes it a machine rather than
 a script. `Stopping` is the transient "shutting down" state (parking resources,
@@ -184,8 +185,8 @@ Machine
 | 5 | 循环运行，直到操作员下达 `Stop()`，然后 `Stopping → Stopped` |
 
 核心生命周期为 `Created → Initializing → Ready → Running → Stopping → Stopped`
-（枚举还预留了 `Fault`、`Paused`、`Recovering` 供后续阶段使用，目前没有任何流程进入它们）。
-`Running` 不是跑一遍：设备会循环，每个 cycle 执行一次配方，直到收到 `Stop()` 请求——
+某个 workflow 步骤失败时，机器进入 `Fault`；调用 `Reset()` 会经过 `Recovering` 恢复到 `Ready`
+（`Paused` 暂未使用）。`Running` 不是跑一遍：设备会循环，每个 cycle 执行一次配方，直到收到 `Stop()` 请求——
 这才是"机器"而非"脚本"。`Stopping` 是"正在关机"的瞬态（回零资源、关闭模块），之后才完全
 `Stopped`；第一阶段里它只是占位，真正的停止逻辑推迟到后续阶段。
 

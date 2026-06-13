@@ -25,8 +25,9 @@ architecture.
       each is driven by a module (`MotionModule` / `VisionModule` / `IoModule`).
 - [x] Richer `Module` lifecycle: `Configure` / `Initialize` / `Start` / `Stop` /
       `Reset`, driven by the Machine (IoModule exercises all of them).
-- [ ] Workflow control: failure of a step, conditional branching — only if a
-      concrete recipe needs it.
+- [x] Workflow control: a failing step stops the workflow and faults the machine
+      (`Fault`); `Reset()` recovers through `Recovering`. Conditional branching
+      still deferred until a recipe needs it.
 - [ ] Tests: a tiny harness around the lifecycle trace.
 
 ## Phase 3 — Concurrency and the execution model

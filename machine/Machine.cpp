@@ -56,24 +56,41 @@ void Machine::Run() {
 
     // A real machine keeps working until it is told to stop, not just once.
     // Each iteration is one production cycle: the recipe runs, then the machine
-    // checks whether Stop() has flipped the request flag and either ticks again
-    // or exits.
+    // either ticks again or exits. The loop ends on Stop() OR on a failing step.
     stop_requested_.store(false);
     unsigned long long cycle = 0;
-    while (!stop_requested_.load()) {
+    bool failed = false;
+    while (!stop_requested_.load() && !failed) {
         ++cycle;
         std::cout << "    cycle " << cycle << "\n";
         for (const auto& workflow : workflows_) {
-            workflow->Run();
+            const auto result = workflow->Run();
+            if (!result.success) {
+                std::cout << "    workflow " << workflow->Name()
+                          << " failed at step " << result.failed_step << "\n";
+                failed = true;
+                break;
+            }
         }
-        std::this_thread::sleep_for(kCycleTick);
+        if (!failed) {
+            std::this_thread::sleep_for(kCycleTick);
+        }
     }
-    std::cout << "    stop requested after " << cycle << " cycle(s)\n";
+
+    if (failed) {
+        std::cout << "    entering Fault (call Reset() to recover)\n";
+    } else {
+        std::cout << "    stop requested after " << cycle << " cycle(s)\n";
+    }
 
     // Stop every module as cyclic operation ends.
     for (const auto& module : modules_) {
         module->Stop();
         std::cout << "    Module " << module->Name() << " Stopped\n";
+    }
+
+    if (failed) {
+        TransitionTo(MachineState::Fault);
     }
 }
 

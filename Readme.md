@@ -37,12 +37,14 @@ Acceptance demo (`examples/minimal_machine`):
 | 1 | `Machine machine;` creates a virtual device |
 | 2 | three resources (`Axis`, `Camera`, `DigitalIO`) |
 | 3 | three modules that use them (`MotionModule`, `VisionModule`, `IoModule`) |
-| 4 | a per-part recipe (`LoadFrame → Align → Bond → Unload`) |
+| 4 | a per-part recipe that drives the resources (`LoadFrame → Align → Bond → Unload`) |
 | 5 | runs in a loop until the operator issues `Stop()`, then `Stopping → Stopped` |
 
 The core lifecycle is `Created → Initializing → Ready → Running → Stopping →
 Stopped`. A failing workflow step sends the machine to `Fault`, and `Reset()`
-recovers through `Recovering` back to `Ready`. (`Paused` is still reserved.)
+recovers through `Recovering` back to `Ready`. In the demo `LoadFrame` checks a
+part-present sensor — withhold the part and that step fails, faulting the machine.
+(`Paused` is still reserved.)
 `Running` is not a single pass: the
 machine loops, running the recipe once per
 cycle, until `Stop()` is requested — that is what makes it a machine rather than
@@ -72,9 +74,13 @@ Running
     cycle 1
     Workflow Recipe Started
         Step LoadFrame
+            axis @ 100
         Step Align
+            camera #1; axis @ 200
         Step Bond
+            vacuum on
         Step Unload
+            axis @ 300; vacuum off
     cycle 2
         ...                          <- keeps cycling, once per cycle
     stop requested after N cycle(s)  <- Stop() was called
@@ -185,11 +191,12 @@ Machine
 | 1 | `Machine machine;` 创建一个虚拟设备 |
 | 2 | 三个资源（`Axis`、`Camera`、`DigitalIO`） |
 | 3 | 使用资源的三个模块（`MotionModule`、`VisionModule`、`IoModule`） |
-| 4 | 单工件配方（`LoadFrame → Align → Bond → Unload`） |
+| 4 | 驱动资源的单工件配方（`LoadFrame → Align → Bond → Unload`） |
 | 5 | 循环运行，直到操作员下达 `Stop()`，然后 `Stopping → Stopped` |
 
 核心生命周期为 `Created → Initializing → Ready → Running → Stopping → Stopped`
-某个 workflow 步骤失败时，机器进入 `Fault`；调用 `Reset()` 会经过 `Recovering` 恢复到 `Ready`
+某个 workflow 步骤失败时，机器进入 `Fault`；调用 `Reset()` 会经过 `Recovering` 恢复到 `Ready`。
+演示里 `LoadFrame` 会检查工件到位传感器——不喂工件，该步骤失败、机器进入 `Fault`
 （`Paused` 暂未使用）。`Running` 不是跑一遍：设备会循环，每个 cycle 执行一次配方，直到收到 `Stop()` 请求——
 这才是"机器"而非"脚本"。`Stopping` 是"正在关机"的瞬态（回零资源、关闭模块），之后才完全
 `Stopped`；第一阶段里它只是占位，真正的停止逻辑推迟到后续阶段。
@@ -216,9 +223,13 @@ Running
     cycle 1
     Workflow Recipe Started
         Step LoadFrame
+            axis @ 100
         Step Align
+            camera #1; axis @ 200
         Step Bond
+            vacuum on
         Step Unload
+            axis @ 300; vacuum off
     cycle 2
         ...                          <- 每个 cycle 循环一次
     stop requested after N cycle(s)  <- 收到 Stop()

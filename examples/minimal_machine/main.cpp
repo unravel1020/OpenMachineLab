@@ -48,8 +48,11 @@ int main() {
     machine.AddModule(std::make_unique<VisionModule>(camera_ref));
     machine.AddModule(std::make_unique<IoModule>(io_ref));
 
-    // Case 4: the per-part recipe.
-    machine.AddWorkflow(BuildRecipe());
+    // Case 4: the per-part recipe. It drives the resources each cycle. Feed a
+    // part so LoadFrame succeeds; withhold it (or clear it mid-run) and the
+    // machine faults at that step.
+    io_ref.SimulateInput(kPartPresentDi, true);
+    machine.AddWorkflow(BuildRecipe(axis_ref, camera_ref, io_ref));
 
     // Case 5: run in a loop until an exit command arrives. The operator console
     // (stdin) requests Stop on Enter; Run() blocks until then.

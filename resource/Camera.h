@@ -16,8 +16,14 @@ public:
     void Close() { open_ = false; }
     bool IsOpen() const { return open_; }
 
+    // Simulate grabbing a frame (e.g. for alignment). Counts captures so a
+    // recipe/observer can see the camera being used during production.
+    void Trigger() { ++captures_; }
+    long Captures() const { return captures_; }
+
 private:
-    bool open_ = false;
+    bool open_      = false;
+    long captures_  = 0;
 };
 
 } // namespace oml

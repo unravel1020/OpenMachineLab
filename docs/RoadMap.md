@@ -45,11 +45,11 @@ do.
 
 - [x] Logging is already redirectable and thread-safe (`Logger`, ADR-0010) — the
       run loop, recipe, and tests all route through it.
-- [ ] Concurrency via a generic **task/delegate pool**: a device submits subtasks
-      (e.g. "trigger vision" + "move the axis" in parallel during PR) and the pool
-      executes them. Chosen so the parallelism *mechanism* stays decoupled from
-      device logic, swappable, and unit-testable with a synchronous pool — and so
-      each real flow is built on its real scenario, not a guessed scheduler.
+- [ ] Concurrency via a generic **task/delegate pool** (ADR-0013): a device
+      submits subtasks (e.g. "trigger vision" + "move the axis" in parallel during
+      PR) and the pool runs them. Decouples the parallelism mechanism from device
+      logic; swappable; unit-testable with a synchronous pool; each flow built on
+      its real scenario.
 - [ ] Resource arbitration (who owns the shared axis right now?).
 - [ ] Cancellation and `Stopping` semantics that actually abort in-flight work.
 

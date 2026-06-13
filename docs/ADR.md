@@ -293,3 +293,72 @@ Per-device access is via `Find(name)`.
 pool's job, RoadMap Phase 3). For now a single-threaded host runs one device at a
 time via `Find(name)->Run()`; concurrent running waits for the pool.
 
+## ADR-0013 — Concurrency via a task/delegate pool (direction; not yet built)
+
+**Status:** proposed — direction recorded; implementation deferred until a
+concrete scenario (e.g. PR) demands it.
+**Date:** 2026-06-13
+
+**Context.** Real devices need concurrent work:
+- During PR (pattern-recognition alignment), vision and the motion axis must be
+  triggered at the same time.
+- A multi-station line runs stations in parallel.
+- A `Host` may run several devices at once.
+
+How do we add parallelism without baking threads into the core (`Machine`/
+`Module`) — which would couple device logic to a threading model, make it hard to
+test, and lock in a scheduler before we know what we need?
+
+**Alternatives considered.**
+- *Thread-per-module*: each `Module` owns a thread. Couples modules to threading;
+  hard to test deterministically; no control over ordering or shared resources.
+- *Actor model*: modules as message-passing actors. Heavier; overkill until
+  messaging needs appear.
+- *Coroutines/async runtime*: steep change; pulls in a runtime.
+
+All of these bake a concurrency *model* into the core.
+
+**Decision.** Add a generic **task/delegate pool** (an `Executor`): a device or
+recipe *submits* independent subtasks to it, and the pool runs them — in parallel
+where it can. The core stays single-threaded and free of threading knowledge;
+parallelism is an explicit, opt-in delegation at the points that genuinely need
+it (e.g. a PR step submits "trigger vision" + "move axis" and waits for both).
+
+Sketch (not final):
+```
+class Executor {
+public:
+    using Task = std::function<void()>;
+    Ticket Submit(Task task);   // independent unit of work; returns a handle
+    void   WaitAll();           // block until all submitted tasks are done
+};
+```
+- The real implementation is a fixed worker-thread pool.
+- A **synchronous `Executor`** (runs each task inline on `Submit`) is used in
+  tests, so parallel code is deterministic and race-free.
+
+Why this shape:
+- **Decoupling** — the pool owns the threading mechanism; device logic only
+  declares "these subtasks are independent." Swapping the scheduler (thread pool,
+  work-stealing, coroutines) changes the pool, not the devices.
+- **Testability** — the synchronous pool makes parallel code unit-testable with
+  no races.
+- **Scenario-driven** — each parallel flow is built on its real need, not a
+  guessed framework; engineers compose concurrency per device.
+- **Composable** — a recipe step can submit subtasks; the `Host` can run devices
+  via the pool; `Module` hooks stay single-threaded unless they delegate.
+
+**Open questions (resolve when we build it).**
+- *Resource arbitration* — if two subtasks touch the same `Axis`, who serializes?
+  (Likely the resource owns a strand/lock; the pool is unaware.)
+- *Cancellation* — how `Stop()`/`Fault` propagates into in-flight subtasks.
+- *Failure* — a failing subtask must be able to fault the machine (extend the
+  `Workflow::Result` across parallel tasks).
+- *Pool sizing and affinity*.
+
+**Consequences.** The core stays minimal and single-threaded; concurrency is an
+explicit, isolatable, testable layer. The cost is that devices needing
+parallelism must express it via submission (slightly more code than implicit
+threading) — but that explicitness is the point. This ADR records the direction;
+it becomes "accepted" when the first real scenario implements it.
+

@@ -10,10 +10,12 @@
 //   Case 4  attach a per-part recipe (LoadFrame -> Align -> Bond -> Unload)
 //   Case 5  run in a loop until the operator issues Stop(), then Stopping -> Stopped
 #include "machine/Machine.h"
+#include "module/IoModule.h"
 #include "module/MotionModule.h"
 #include "module/VisionModule.h"
 #include "resource/Axis.h"
 #include "resource/Camera.h"
+#include "resource/DigitalIO.h"
 
 #include "OperatorConsole.h"
 #include "Recipe.h"
@@ -32,15 +34,19 @@ int main() {
     // owns them while the modules borrow stable references.
     auto axis   = std::make_unique<Axis>();
     auto camera = std::make_unique<Camera>();
-    Axis&   axis_ref   = *axis;
-    Camera& camera_ref = *camera;
+    auto io     = std::make_unique<DigitalIO>();
+    Axis&      axis_ref   = *axis;
+    Camera&    camera_ref = *camera;
+    DigitalIO& io_ref     = *io;
 
     machine.AddResource(std::move(axis));
     machine.AddResource(std::move(camera));
+    machine.AddResource(std::move(io));
 
     // Case 3: modules that drive those resources.
     machine.AddModule(std::make_unique<MotionModule>(axis_ref));
     machine.AddModule(std::make_unique<VisionModule>(camera_ref));
+    machine.AddModule(std::make_unique<IoModule>(io_ref));
 
     // Case 4: the per-part recipe.
     machine.AddWorkflow(BuildRecipe());

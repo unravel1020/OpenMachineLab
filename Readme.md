@@ -35,8 +35,8 @@ Acceptance demo (`examples/minimal_machine`):
 | Case | What it shows |
 |------|----------------|
 | 1 | `Machine machine;` creates a virtual device |
-| 2 | two resources (`Axis`, `Camera`) |
-| 3 | two modules that use them (`MotionModule`, `VisionModule`) |
+| 2 | three resources (`Axis`, `Camera`, `DigitalIO`) |
+| 3 | three modules that use them (`MotionModule`, `VisionModule`, `IoModule`) |
 | 4 | a per-part recipe (`LoadFrame → Align → Bond → Unload`) |
 | 5 | runs in a loop until the operator issues `Stop()`, then `Stopping → Stopped` |
 
@@ -57,8 +57,10 @@ Created
 Initializing
     Resource Axis
     Resource Camera
+    Resource DigitalIO
     Module MotionModule Initialized
     Module VisionModule Initialized
+    Module IoModule Initialized
  v
 Ready
  v
@@ -83,7 +85,7 @@ Stopped
 ```
 OpenMachineLab
 ├── machine/      Machine - the runtime root
-├── module/       Module + MotionModule, VisionModule (Phase 2)
+├── module/       Module + MotionModule, VisionModule, IoModule (Phase 2)
 ├── resource/     Resource + Axis, Camera, DigitalIO (Phase 2 stubs)
 ├── workflow/     Workflow + Step - ordered work
 ├── state/        MachineState - lifecycle
@@ -170,8 +172,8 @@ Machine
 | 用例 | 展示内容 |
 |------|----------|
 | 1 | `Machine machine;` 创建一个虚拟设备 |
-| 2 | 两个资源（`Axis`、`Camera`） |
-| 3 | 使用资源的两个模块（`MotionModule`、`VisionModule`） |
+| 2 | 三个资源（`Axis`、`Camera`、`DigitalIO`） |
+| 3 | 使用资源的三个模块（`MotionModule`、`VisionModule`、`IoModule`） |
 | 4 | 单工件配方（`LoadFrame → Align → Bond → Unload`） |
 | 5 | 循环运行，直到操作员下达 `Stop()`，然后 `Stopping → Stopped` |
 
@@ -189,8 +191,10 @@ Created
 Initializing
     Resource Axis
     Resource Camera
+    Resource DigitalIO
     Module MotionModule Initialized
     Module VisionModule Initialized
+    Module IoModule Initialized
  v
 Ready
  v
@@ -215,7 +219,7 @@ Stopped
 ```
 OpenMachineLab
 ├── machine/      Machine - 运行模型根
-├── module/       Module + MotionModule、VisionModule（第二阶段）
+├── module/       Module + MotionModule、VisionModule、IoModule（第二阶段）
 ├── resource/     Resource + Axis、Camera、DigitalIO（第二阶段桩）
 ├── workflow/     Workflow + Step - 有序工作
 ├── state/        MachineState - 生命周期

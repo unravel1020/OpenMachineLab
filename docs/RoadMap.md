@@ -22,7 +22,7 @@ into the library (ADR-0008). The items below extend this without betting on an
 architecture.
 
 - [x] Canonical resource stubs: `Axis`, `Camera`, `DigitalIO` (simulated) — done;
-      a module can actually *use* a resource.
+      each is driven by a module (`MotionModule` / `VisionModule` / `IoModule`).
 - [ ] Richer `Module` lifecycle: `Configure` / `Start` / `Stop` / `Reset`,
       added only as the example demands.
 - [ ] Workflow control: failure of a step, conditional branching — only if a

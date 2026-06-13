@@ -14,8 +14,6 @@
 
 namespace oml {
 
-class History; // optional journal, attached via SetHistory()
-
 // A single industrial equipment instance. This is the root of the runtime
 // model: it owns resources, hosts modules, and executes workflows, all while
 // tracking a minimal lifecycle state.
@@ -26,7 +24,8 @@ class History; // optional journal, attached via SetHistory()
 //
 // The lifecycle drives the modules: Configure+Initialize while Initializing,
 // Start when entering Running, Stop when leaving it, and Reset during recovery.
-// An optional History can journal every transition and fault for persistence.
+// Every transition is published as a StateChanged event on the bus (Bus()); a
+// History or any other subscriber can journal it.
 class Machine {
 public:
     Machine();
@@ -53,9 +52,6 @@ public:
 
     MachineState State() const { return state_; }
 
-    // Optional: journal lifecycle events (transitions + faults) for persistence.
-    void SetHistory(History* history) { history_ = history; }
-
     // Publish/subscribe bus for Events (state changes; alarms come later).
     EventBus& Bus() { return bus_; }
 
@@ -71,7 +67,6 @@ private:
     // Sticky: Stop() sets it, only Reset() clears it (ADR-0009). Atomic so
     // Stop() may be called from a different thread than the one in Run().
     std::atomic<bool>                      stop_requested_{false};
-    History*                               history_ = nullptr;
     EventBus                               bus_;
     AlarmManager                           alarms_{&bus_};
     std::vector<std::unique_ptr<Resource>> resources_;

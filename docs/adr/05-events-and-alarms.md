@@ -28,8 +28,9 @@ concurrency work.
 
 **Consequences.** One decoupled spine for all observers; adding an observer no
 longer touches emitters. The cost is an indirection per event (negligible).
-History still journals directly for now; it can become a subscriber later (single
-source of truth) without changing emitters.
+`History` is now a subscriber (`Attach`/`Detach`): the bus is the single source
+of truth and `Machine` no longer journals directly. Lifetime rule: a `History`
+must be destroyed (or `Detach`ed) before the bus it is attached to.
 
 ## ADR-0018 — Alarms are the causes; Fault is just a state
 

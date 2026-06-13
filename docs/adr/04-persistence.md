@@ -14,16 +14,17 @@ only emitted a text trace (Logger); there was no structured, saveable record.
 This is the fault-history foundation hinted at in ADR-0007.
 
 **Decision.** Add a `History` (`history/History.h`): an append-only journal of
-`{seq, state, note}` entries. A `Machine` optionally journals every transition
-(attach via `SetHistory`); a fault is recorded with the failing workflow/step as
-its note. `History` serializes to / parses from a stream (`Save`/`Load`), and a
-state name round-trips via `FromString`.
+`{seq, state, note}` entries. A `Machine` publishes every transition as a
+`StateChanged` event; a `History` attached to the bus (`History::Attach`) journals
+them, with the fault reason as the note. `History` serializes to / parses from a
+stream (`Save`/`Load`), and a state name round-trips via `FromString`.
 
 **Consequences.** State and fault history are now first-class and persistable
-(save to a file, reload, audit). The `Machine`'s dependency is one optional
-pointer (null = no journal, no overhead) — minimal coupling. The journal records
-transitions + fault reasons; per-cycle/per-step detail still lives in the Logger
-trace (separation of concerns: structured history vs. text trace).
+(save to a file, reload, audit). `Machine` no longer depends on `History` at all
+— it just publishes events; a `History` subscribes (decoupled, opt-in). The
+journal records transitions + fault reasons; per-cycle/per-step detail still
+lives in the Logger trace (separation of concerns: structured history vs. text
+trace).
 
 ## ADR-0015 — Persist recipes via named actions + a serializable spec
 

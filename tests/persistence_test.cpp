@@ -46,9 +46,11 @@ private:
     void TestHistoryRoundTrip() {
         SilentLog silence;
 
-        History hist;
+        // Declare Machine before History: destruction is reverse, so History
+        // detaches (in its dtor) while the bus is still alive.
         Machine  m;
-        m.SetHistory(&hist);
+        History  hist;
+        hist.Attach(m.Bus()); // journal StateChanged from the bus
         m.AddModule(std::make_unique<IdleModule>());
 
         auto wf = std::make_unique<Workflow>("w");

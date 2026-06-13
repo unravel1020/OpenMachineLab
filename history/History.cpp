@@ -1,9 +1,13 @@
 #include "history/History.h"
 
+#include "event/Event.h"
+#include "event/EventBus.h"
+
 #include <istream>
 #include <ostream>
 #include <sstream>
 #include <utility>
+#include <variant>
 
 namespace oml {
 
@@ -42,6 +46,26 @@ void History::Load(std::istream& in) {
 
         entries_.push_back({seq, FromString(state_name), std::move(note)});
         if (seq >= next_seq_) next_seq_ = seq + 1; // keep sequence monotonic
+    }
+}
+
+History::~History() { Detach(); }
+
+void History::Attach(EventBus& bus) {
+    Detach(); // leave any previous bus first
+    bus_   = &bus;
+    token_ = bus_->Subscribe([this](const Event& event) {
+        if (const auto* sc = std::get_if<StateChanged>(&event)) {
+            Record(sc->to, sc->note);
+        }
+    });
+}
+
+void History::Detach() {
+    if (bus_ != nullptr) {
+        bus_->Unsubscribe(token_);
+        bus_   = nullptr;
+        token_ = 0;
     }
 }
 

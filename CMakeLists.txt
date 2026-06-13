@@ -54,6 +54,7 @@ target_include_directories(OpenMachineLab PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(examples/minimal_machine)
 add_subdirectory(examples/pick_and_place)
 add_subdirectory(examples/host_demo)
+add_subdirectory(examples/file_driven_device)
 
 # --- tests ---------------------------------------------------------------
 add_subdirectory(tests)

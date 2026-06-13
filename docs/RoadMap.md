@@ -23,8 +23,8 @@ architecture.
 
 - [x] Canonical resource stubs: `Axis`, `Camera`, `DigitalIO` (simulated) — done;
       each is driven by a module (`MotionModule` / `VisionModule` / `IoModule`).
-- [ ] Richer `Module` lifecycle: `Configure` / `Start` / `Stop` / `Reset`,
-      added only as the example demands.
+- [x] Richer `Module` lifecycle: `Configure` / `Initialize` / `Start` / `Stop` /
+      `Reset`, driven by the Machine (IoModule exercises all of them).
 - [ ] Workflow control: failure of a step, conditional branching — only if a
       concrete recipe needs it.
 - [ ] Tests: a tiny harness around the lifecycle trace.

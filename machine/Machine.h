@@ -19,10 +19,8 @@ namespace oml {
 // another until Stop() is requested from the outside (operator, host, or an
 // error). Run() is therefore a loop, not a one-shot.
 //
-// Phase 1 deliberately avoids committing to any larger architecture — no event
-// bus, no scheduler, no plugin system, no IoC container. The only goal is to
-// prove that the model can run, not to simulate any specific device. Those
-// abstractions are expected to grow out of real pain in later phases.
+// The lifecycle drives the modules: Configure+Initialize while Initializing,
+// Start when entering Running, Stop when leaving it, and Reset during recovery.
 class Machine {
 public:
     Machine();
@@ -33,14 +31,17 @@ public:
     void AddWorkflow(std::unique_ptr<Workflow> workflow);
 
     // --- lifecycle ---------------------------------------------------------
-    // Initialize: bring resources/modules online, end in Ready.
+    // Initialize: Configure + bring resources/modules online, end in Ready.
     void Initialize();
-    // Run: a loop, not a one-shot. Executes every workflow once per cycle and
-    // keeps cycling until Stop() is requested. Blocks the calling thread.
+    // Run: a loop. Starts the modules, executes the workflows once per cycle,
+    // and keeps cycling until Stop() is requested, then Stops the modules.
     void Run();
-    // Request the run loop to exit. Safe to call from another thread while Run
-    // is blocking. Idempotent.
+    // Request the run loop to exit. Thread-safe (may be called from the
+    // operator/host thread while Run blocks). Idempotent.
     void Stop();
+    // Recover from a fault: Reset every module via the Recovering state and
+    // return to Ready. Call this after the machine has entered Fault.
+    void Reset();
     // Shutdown: Stopping -> Stopped.
     void Shutdown();
 

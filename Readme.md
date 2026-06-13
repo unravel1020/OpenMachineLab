@@ -65,6 +65,9 @@ Initializing
 Ready
  v
 Running
+    Module MotionModule Started
+    Module VisionModule Started
+    Module IoModule Started
     cycle 1
     Workflow Recipe Started
         Step LoadFrame
@@ -74,6 +77,9 @@ Running
     cycle 2
         ...                          <- keeps cycling, once per cycle
     stop requested after N cycle(s)  <- Stop() was called
+    Module MotionModule Stopped
+    Module VisionModule Stopped
+    Module IoModule Stopped
  v
 Stopping
  v
@@ -199,6 +205,9 @@ Initializing
 Ready
  v
 Running
+    Module MotionModule Started
+    Module VisionModule Started
+    Module IoModule Started
     cycle 1
     Workflow Recipe Started
         Step LoadFrame
@@ -208,6 +217,9 @@ Running
     cycle 2
         ...                          <- 每个 cycle 循环一次
     stop requested after N cycle(s)  <- 收到 Stop()
+    Module MotionModule Stopped
+    Module VisionModule Stopped
+    Module IoModule Stopped
  v
 Stopping
  v

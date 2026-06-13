@@ -37,6 +37,7 @@ void Machine::Initialize() {
         std::cout << "    Resource " << resource->Name() << "\n";
     }
     for (const auto& module : modules_) {
+        module->Configure();
         module->Initialize();
         std::cout << "    Module " << module->Name() << " Initialized\n";
     }
@@ -47,10 +48,16 @@ void Machine::Initialize() {
 void Machine::Run() {
     TransitionTo(MachineState::Running);
 
+    // Start every module as cyclic operation begins.
+    for (const auto& module : modules_) {
+        module->Start();
+        std::cout << "    Module " << module->Name() << " Started\n";
+    }
+
     // A real machine keeps working until it is told to stop, not just once.
     // Each iteration is one production cycle: the recipe runs, then the machine
-    // checks whether Stop() has flipped the request flag (usually from another
-    // thread acting as the operator or host) and either ticks again or exits.
+    // checks whether Stop() has flipped the request flag and either ticks again
+    // or exits.
     stop_requested_.store(false);
     unsigned long long cycle = 0;
     while (!stop_requested_.load()) {
@@ -62,10 +69,25 @@ void Machine::Run() {
         std::this_thread::sleep_for(kCycleTick);
     }
     std::cout << "    stop requested after " << cycle << " cycle(s)\n";
+
+    // Stop every module as cyclic operation ends.
+    for (const auto& module : modules_) {
+        module->Stop();
+        std::cout << "    Module " << module->Name() << " Stopped\n";
+    }
 }
 
 void Machine::Stop() {
     stop_requested_.store(true);
+}
+
+void Machine::Reset() {
+    TransitionTo(MachineState::Recovering);
+    for (const auto& module : modules_) {
+        module->Reset();
+        std::cout << "    Module " << module->Name() << " Reset\n";
+    }
+    TransitionTo(MachineState::Ready);
 }
 
 void Machine::Shutdown() {

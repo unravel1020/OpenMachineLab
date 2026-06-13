@@ -362,3 +362,54 @@ parallelism must express it via submission (slightly more code than implicit
 threading) — but that explicitness is the point. This ADR records the direction;
 it becomes "accepted" when the first real scenario implements it.
 
+## ADR-0014 — Persist state/history via a History journal
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** A device's lifecycle — the states it passed through, and especially
+*why* it faulted — is valuable for audit, diagnostics, and resume. Phases 1-2
+only emitted a text trace (Logger); there was no structured, saveable record.
+This is the fault-history foundation hinted at in ADR-0007.
+
+**Decision.** Add a `History` (`history/History.h`): an append-only journal of
+`{seq, state, note}` entries. A `Machine` optionally journals every transition
+(attach via `SetHistory`); a fault is recorded with the failing workflow/step as
+its note. `History` serializes to / parses from a stream (`Save`/`Load`), and a
+state name round-trips via `FromString`.
+
+**Consequences.** State and fault history are now first-class and persistable
+(save to a file, reload, audit). The `Machine`'s dependency is one optional
+pointer (null = no journal, no overhead) — minimal coupling. The journal records
+transitions + fault reasons; per-cycle/per-step detail still lives in the Logger
+trace (separation of concerns: structured history vs. text trace).
+
+## ADR-0015 — Persist recipes via named actions + a serializable spec
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** A runtime `Workflow` holds `Step`s whose actions are
+`std::function` callables — which cannot be serialized. So a recipe could not be
+saved to or loaded from a file, even though "edit the recipe without
+recompiling" is a basic industrial need.
+
+**Decision.** Split the recipe into two layers:
+- An `ActionRegistry` (`workflow/ActionRegistry.h`): maps names to callables.
+- A `RecipeSpec` (`workflow/RecipeSpec.h`): a serializable description (named
+  steps, each referencing an action *by name*). `SaveRecipe`/`LoadRecipe` handle
+  the text format; `BuildWorkflow(spec, registry)` rebuilds a runtime `Workflow`
+  by resolving each name (returns `nullptr` if any name is unknown — no partial
+  build).
+
+Devices that want file-driven recipes register their actions and author recipes
+as specs; devices that hardcode recipes (`DieBonder`/`PickAndPlace` today) keep
+using direct lambdas.
+
+**Consequences.** Recipes are persistable and editable without recompile, and the
+callable-vs-serializable tension is resolved cleanly (names on disk, lambdas in
+the registry). Cost: a registry-based recipe must register its actions and
+reference them by name — opted into per device. The format is a trivial text line
+format (no JSON/TOML dependency); a richer format can replace it later behind the
+same `SaveRecipe`/`LoadRecipe` interface.
+

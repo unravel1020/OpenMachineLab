@@ -24,4 +24,7 @@ enum class MachineState {
 // Human-readable name for a state, used by the runtime trace.
 std::string_view ToString(MachineState state);
 
+// Inverse of ToString(): parse a state name. Unknown names map to Created.
+MachineState FromString(std::string_view name);
+
 } // namespace oml

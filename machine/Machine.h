@@ -7,9 +7,12 @@
 
 #include <atomic>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace oml {
+
+class History; // optional journal, attached via SetHistory()
 
 // A single industrial equipment instance. This is the root of the runtime
 // model: it owns resources, hosts modules, and executes workflows, all while
@@ -21,6 +24,7 @@ namespace oml {
 //
 // The lifecycle drives the modules: Configure+Initialize while Initializing,
 // Start when entering Running, Stop when leaving it, and Reset during recovery.
+// An optional History can journal every transition and fault for persistence.
 class Machine {
 public:
     Machine();
@@ -47,14 +51,18 @@ public:
 
     MachineState State() const { return state_; }
 
+    // Optional: journal lifecycle events (transitions + faults) for persistence.
+    void SetHistory(History* history) { history_ = history; }
+
 private:
-    // Apply a state change and emit it on the runtime trace.
-    void TransitionTo(MachineState next);
+    // Apply a state change: annotate the journal (if any) and emit the trace.
+    void TransitionTo(MachineState next, std::string note = "");
 
     MachineState                           state_ = MachineState::Created;
-    // Cleared at the start of Run(), set by Stop(). Atomic so Stop() may be
-    // called from a different thread than the one blocked in Run().
+    // Sticky: Stop() sets it, only Reset() clears it (ADR-0009). Atomic so
+    // Stop() may be called from a different thread than the one in Run().
     std::atomic<bool>                      stop_requested_{false};
+    History*                               history_ = nullptr;
     std::vector<std::unique_ptr<Resource>> resources_;
     std::vector<std::unique_ptr<Module>>   modules_;
     std::vector<std::unique_ptr<Workflow>> workflows_;

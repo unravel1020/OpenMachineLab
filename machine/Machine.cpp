@@ -1,5 +1,6 @@
 #include "machine/Machine.h"
 
+#include "history/History.h"
 #include "log/Logger.h"
 
 #include <chrono>
@@ -53,21 +54,23 @@ void Machine::Run() {
         Log().Info("    Module " + module->Name() + " Started");
     }
 
-    // A real machine keeps working until it is told to stop, not just once.
     // Each iteration is one production cycle: the recipe runs, then the machine
-    // either ticks again or exits. The loop ends on Stop() OR on a failing step.
-    // stop_requested_ is sticky: Stop() sets it and only Reset() clears it, so a
-    // stop signalled before or during Run is never lost (no reset-on-start race).
+    // either ticks again or exits. The loop ends on Stop() OR a failing step.
+    // stop_requested_ is sticky: Stop() sets it, only Reset() clears it, so a
+    // stop signalled before or during Run is never lost (no reset-on-start race,
+    // ADR-0009).
     unsigned long long cycle = 0;
-    bool failed = false;
+    bool        failed = false;
+    std::string fault_reason;
     while (!stop_requested_.load() && !failed) {
         ++cycle;
         Log().Info("    cycle " + std::to_string(cycle));
         for (const auto& workflow : workflows_) {
             const auto result = workflow->Run();
             if (!result.success) {
-                Log().Warn("    workflow " + workflow->Name()
-                           + " failed at step " + result.failed_step);
+                fault_reason = "workflow " + workflow->Name()
+                               + " failed at step " + result.failed_step;
+                Log().Warn("    " + fault_reason);
                 failed = true;
                 break;
             }
@@ -90,7 +93,7 @@ void Machine::Run() {
     }
 
     if (failed) {
-        TransitionTo(MachineState::Fault);
+        TransitionTo(MachineState::Fault, fault_reason);
     }
 }
 
@@ -113,8 +116,9 @@ void Machine::Shutdown() {
     TransitionTo(MachineState::Stopped);
 }
 
-void Machine::TransitionTo(MachineState next) {
+void Machine::TransitionTo(MachineState next, std::string note) {
     state_ = next;
+    if (history_) history_->Record(next, note);
     Log().Info(" v");
     Log().Info(std::string{ToString(state_)});
 }

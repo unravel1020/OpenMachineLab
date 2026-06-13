@@ -36,9 +36,11 @@ endif()
 # Phase 1 layout: one folder per concept. There is no "core" umbrella on
 # purpose - the model is small enough that one library covers it.
 add_library(OpenMachineLab STATIC
+    history/History.cpp
     host/Host.cpp
     log/Logger.cpp
     state/MachineState.cpp
+    workflow/RecipeSpec.cpp
     workflow/Workflow.cpp
     machine/Machine.cpp
 )

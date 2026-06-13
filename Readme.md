@@ -100,8 +100,9 @@ OpenMachineLab
 ├── machine/      Machine - the runtime root
 ├── module/       Module + MotionModule, VisionModule, IoModule (Phase 2)
 ├── resource/     Resource + Axis, Camera, DigitalIO (Phase 2 stubs)
-├── workflow/     Workflow + Step - ordered work
+├── workflow/     Workflow + Step; ActionRegistry + RecipeSpec (recipe persistence)
 ├── state/        MachineState - lifecycle
+├── history/      History - persistable lifecycle/fault journal
 ├── log/          Logger - redirectable, thread-safe trace sink
 ├── device/       Device - named profile over a Machine
 ├── host/         Host - manages many devices uniformly
@@ -254,8 +255,9 @@ OpenMachineLab
 ├── machine/      Machine - 运行模型根
 ├── module/       Module + MotionModule、VisionModule、IoModule（第二阶段）
 ├── resource/     Resource + Axis、Camera、DigitalIO（第二阶段桩）
-├── workflow/     Workflow + Step - 有序工作
+├── workflow/     Workflow + Step；ActionRegistry + RecipeSpec（配方持久化）
 ├── state/        MachineState - 生命周期
+├── history/      History - 可持久化的生命周期/故障日志
 ├── log/          Logger - 可重定向、线程安全的日志 sink
 ├── device/       Device - 基于 Machine 的具名 profile
 ├── host/         Host - 统一管理多台设备

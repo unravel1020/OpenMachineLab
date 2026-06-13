@@ -45,7 +45,7 @@ public:
         Workflow* wf = recipe.get();
         PerfResult workflow_run;
         {
-            SilentCout silence;
+            SilentLog silence;
             workflow_run = Benchmark(kIters, [wf] { wf->Run(); });
         }
         ReportPerf("Workflow::Run (4 steps)", workflow_run);
@@ -59,7 +59,7 @@ public:
         // place each iteration rather than returning one.)
         PerfResult initialize;
         {
-            SilentCout silence;
+            SilentLog silence;
             initialize = Benchmark(kIters, [] {
                 Machine m;
                 m.AddModule(std::make_unique<IdleModule>());

@@ -41,7 +41,7 @@ public:
     std::string Name() const override { return "safety"; }
 
     void Run() override {
-        SilentCout silence; // we assert on State(), not on the trace
+        SilentLog silence; // we assert on State(), not on the trace
 
         // --- initial state ------------------------------------------------
         {

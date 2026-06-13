@@ -1,12 +1,13 @@
 #pragma once
 
+#include "log/Logger.h"
 #include "resource/Axis.h"
 #include "resource/Camera.h"
 #include "resource/DigitalIO.h"
 #include "workflow/Workflow.h"
 
-#include <iostream>
 #include <memory>
+#include <string>
 
 namespace oml::example {
 
@@ -31,32 +32,33 @@ inline std::unique_ptr<Workflow> BuildRecipe(Axis& axis, Camera& camera, Digital
 
     recipe->AddStep("LoadFrame", [&] {
         if (!io.Read(kPartPresentDi)) {
-            std::cout << "            ! no part present\n";
+            Log().Warn("            ! no part present");
             return false;
         }
         axis.MoveTo(kLoadPos);
-        std::cout << "            axis @ " << axis.Position() << "\n";
+        Log().Info("            axis @ " + std::to_string(axis.Position()));
         return true;
     });
 
     recipe->AddStep("Align", [&] {
         camera.Trigger();
         axis.MoveTo(kAlignPos);
-        std::cout << "            camera #" << camera.Captures()
-                  << "; axis @ " << axis.Position() << "\n";
+        Log().Info("            camera #" + std::to_string(camera.Captures())
+                   + "; axis @ " + std::to_string(axis.Position()));
         return true;
     });
 
     recipe->AddStep("Bond", [&] {
         io.Write(kVacuumDo, true); // pick
-        std::cout << "            vacuum on\n";
+        Log().Info("            vacuum on");
         return true;
     });
 
     recipe->AddStep("Unload", [&] {
         axis.MoveTo(kUnloadPos);
         io.Write(kVacuumDo, false); // release
-        std::cout << "            axis @ " << axis.Position() << "; vacuum off\n";
+        Log().Info("            axis @ " + std::to_string(axis.Position())
+                   + "; vacuum off");
         return true;
     });
 

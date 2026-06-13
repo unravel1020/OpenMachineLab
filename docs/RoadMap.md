@@ -43,6 +43,8 @@ stress it from many threads. This phase is about genuine parallelism — several
 modules or workflows running at once — which the single-cycle loop does not yet
 do.
 
+- [x] Logging is already redirectable and thread-safe (`Logger`, ADR-0010) — the
+      run loop, recipe, and tests all route through it.
 - [ ] Decide between cooperative steps, a thread per module, or an actor model
       — **driven by a real bottleneck**, then documented as an ADR.
 - [ ] Resource arbitration (who owns the shared axis right now?).

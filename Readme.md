@@ -102,6 +102,7 @@ OpenMachineLab
 ├── resource/     Resource + Axis, Camera, DigitalIO (Phase 2 stubs)
 ├── workflow/     Workflow + Step - ordered work
 ├── state/        MachineState - lifecycle
+├── log/          Logger - redirectable, thread-safe trace sink
 ├── examples/
 │   └── minimal_machine/   entry point + Recipe + OperatorConsole
 ├── tests/        TestBase + lifecycle/perf/safety tests (CTest)
@@ -251,6 +252,7 @@ OpenMachineLab
 ├── resource/     Resource + Axis、Camera、DigitalIO（第二阶段桩）
 ├── workflow/     Workflow + Step - 有序工作
 ├── state/        MachineState - 生命周期
+├── log/          Logger - 可重定向、线程安全的日志 sink
 ├── examples/
 │   └── minimal_machine/   入口 + Recipe + OperatorConsole
 ├── tests/        TestBase + lifecycle/perf/safety 测试（CTest）

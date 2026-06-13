@@ -223,3 +223,26 @@ the Phase 3 execution model. The cost is a minor rule: a machine that has been
 stopped cannot `Run()` again until it is `Reset()`. That is acceptable; a real
 device does not resume production after a stop without an explicit recovery.
 
+## ADR-0010 — Log through a redirectable Logger, not std::cout
+
+**Status:** accepted
+**Date:** 2026-06-13
+
+**Context.** The model printed its trace directly to `std::cout`. That hard-wired
+the sink and forced tests to suppress it with a `SilentCout` hack (swapping
+cout's `rdbuf`). A real device needs to route logs to a file, a host, or nowhere;
+and concurrency (Phase 3) needs serialized, thread-safe output.
+
+**Decision.** Introduce a minimal `Logger` (`log/Logger.h`) with `Info`/`Warn`/
+`Error` levels and a settable sink (`nullptr` discards). All model output —
+Machine state transitions and lifecycle, Workflow step progress, recipe actions —
+goes through the process-wide `oml::Log()` instead of `std::cout`. The sink is
+atomic (lock-free fast path when silenced) and writes are mutex-guarded, so
+concurrent loggers produce clean, interleaving-free output.
+
+**Consequences.** Tests silence the trace via `SilentLog` (`Log().SetSink(nullptr)`)
+instead of the cout-rdbuf hack, and perf numbers are no longer distorted by I/O.
+The cost is one global instance and string-building at call sites — acceptable
+for a cross-cutting concern. Only the three needed levels exist; structured
+logging, filtering, and per-module sinks wait for a concrete need.
+

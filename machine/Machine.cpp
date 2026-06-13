@@ -1,7 +1,9 @@
 #include "machine/Machine.h"
 
+#include "log/Logger.h"
+
 #include <chrono>
-#include <iostream>
+#include <string>
 #include <thread>
 #include <utility>
 
@@ -12,10 +14,7 @@ namespace oml {
 constexpr auto kCycleTick = std::chrono::milliseconds(700);
 
 Machine::Machine() {
-    // The constructor prints the initial state so the trace always starts with
-    // "Created" on its own line; every later change prepends a "v" marker.
-    // ASCII-only on purpose: a Unicode arrow mojibakes on non-UTF-8 consoles.
-    std::cout << ToString(state_) << "\n";
+    Log().Info(ToString(state_));
 }
 
 void Machine::AddResource(std::unique_ptr<Resource> resource) {
@@ -34,12 +33,12 @@ void Machine::Initialize() {
     TransitionTo(MachineState::Initializing);
 
     for (const auto& resource : resources_) {
-        std::cout << "    Resource " << resource->Name() << "\n";
+        Log().Info("    Resource " + resource->Name());
     }
     for (const auto& module : modules_) {
         module->Configure();
         module->Initialize();
-        std::cout << "    Module " << module->Name() << " Initialized\n";
+        Log().Info("    Module " + module->Name() + " Initialized");
     }
 
     TransitionTo(MachineState::Ready);
@@ -51,7 +50,7 @@ void Machine::Run() {
     // Start every module as cyclic operation begins.
     for (const auto& module : modules_) {
         module->Start();
-        std::cout << "    Module " << module->Name() << " Started\n";
+        Log().Info("    Module " + module->Name() + " Started");
     }
 
     // A real machine keeps working until it is told to stop, not just once.
@@ -63,12 +62,12 @@ void Machine::Run() {
     bool failed = false;
     while (!stop_requested_.load() && !failed) {
         ++cycle;
-        std::cout << "    cycle " << cycle << "\n";
+        Log().Info("    cycle " + std::to_string(cycle));
         for (const auto& workflow : workflows_) {
             const auto result = workflow->Run();
             if (!result.success) {
-                std::cout << "    workflow " << workflow->Name()
-                          << " failed at step " << result.failed_step << "\n";
+                Log().Warn("    workflow " + workflow->Name()
+                           + " failed at step " + result.failed_step);
                 failed = true;
                 break;
             }
@@ -79,15 +78,15 @@ void Machine::Run() {
     }
 
     if (failed) {
-        std::cout << "    entering Fault (call Reset() to recover)\n";
+        Log().Warn("    entering Fault (call Reset() to recover)");
     } else {
-        std::cout << "    stop requested after " << cycle << " cycle(s)\n";
+        Log().Info("    stop requested after " + std::to_string(cycle) + " cycle(s)");
     }
 
     // Stop every module as cyclic operation ends.
     for (const auto& module : modules_) {
         module->Stop();
-        std::cout << "    Module " << module->Name() << " Stopped\n";
+        Log().Info("    Module " + module->Name() + " Stopped");
     }
 
     if (failed) {
@@ -104,7 +103,7 @@ void Machine::Reset() {
     TransitionTo(MachineState::Recovering);
     for (const auto& module : modules_) {
         module->Reset();
-        std::cout << "    Module " << module->Name() << " Reset\n";
+        Log().Info("    Module " + module->Name() + " Reset");
     }
     TransitionTo(MachineState::Ready);
 }
@@ -116,7 +115,8 @@ void Machine::Shutdown() {
 
 void Machine::TransitionTo(MachineState next) {
     state_ = next;
-    std::cout << " v\n" << ToString(state_) << "\n";
+    Log().Info(" v");
+    Log().Info(std::string{ToString(state_)});
 }
 
 } // namespace oml

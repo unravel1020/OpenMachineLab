@@ -47,7 +47,7 @@ public:
     std::string Name() const override { return "lifecycle"; }
 
     void Run() override {
-        SilentCout silence; // assert on State and counts, not on the trace
+        SilentLog silence; // assert on State and counts, not on the trace
 
         // Failure path: Created -> Ready -> (failed run) Fault -> Reset -> Ready
         //                                                     -> Stopped.

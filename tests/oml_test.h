@@ -13,12 +13,13 @@
 // programmatic checks readable even when a test drives the model.
 #pragma once
 
+#include "log/Logger.h"
+
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <iomanip>
-#include <streambuf>
 #include <string>
 #include <thread>
 #include <vector>
@@ -108,19 +109,18 @@ private:
     int failures_ = 0;
 };
 
-// Suppress std::cout for its lifetime. The Machine/Workflow trace goes to
-// cout, so wrap a perf measurement in this to avoid timing console I/O.
-class SilentCout {
+// Silence the model's trace for the lifetime of this object. The model writes
+// via oml::Log(); point its sink at nothing so perf measurements are not
+// distorted by I/O and so test assertions (on stderr) stay readable.
+class SilentLog {
 public:
-    SilentCout() : saved_(std::cout.rdbuf()) { std::cout.rdbuf(&null_); }
-    ~SilentCout() { std::cout.rdbuf(saved_); }
-    SilentCout(const SilentCout&)            = delete;
-    SilentCout& operator=(const SilentCout&) = delete;
+    SilentLog() : saved_(oml::Log().Sink()) { oml::Log().SetSink(nullptr); }
+    ~SilentLog() { oml::Log().SetSink(saved_); }
+    SilentLog(const SilentLog&)            = delete;
+    SilentLog& operator=(const SilentLog&) = delete;
 
 private:
-    struct NullBuf : std::streambuf {}; // discards all output (overflow -> eof)
-    std::streambuf* saved_;
-    NullBuf         null_;
+    std::ostream* saved_;
 };
 
 // Run a suite. Accepts unique_ptr<TestBase> arguments directly (a variadic

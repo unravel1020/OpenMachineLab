@@ -2,6 +2,7 @@
 
 namespace oml {
 
+// State enum -> readable name. 状态枚举 → 可读名称。
 std::string_view ToString(MachineState state) {
     switch (state) {
         case MachineState::Created:      return "Created";
@@ -17,6 +18,8 @@ std::string_view ToString(MachineState state) {
     return "Unknown";
 }
 
+// Readable name -> State enum. Unknown names map to Created.
+// 可读名称 → 状态枚举。未知名称返回 Created。
 MachineState FromString(std::string_view name) {
     if (name == "Created")      return MachineState::Created;
     if (name == "Initializing") return MachineState::Initializing;
@@ -27,7 +30,7 @@ MachineState FromString(std::string_view name) {
     if (name == "Fault")        return MachineState::Fault;
     if (name == "Paused")       return MachineState::Paused;
     if (name == "Recovering")   return MachineState::Recovering;
-    return MachineState::Created; // unknown name
+    return MachineState::Created; // unknown name 未知名称
 }
 
 } // namespace oml

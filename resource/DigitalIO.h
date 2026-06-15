@@ -7,16 +7,21 @@
 
 namespace oml {
 
-// Simulated digital input/output (Phase 2 stub). No hardware behind it: the
-// input and output lines are just bools in maps, so a module can exercise a
-// real DI/DO interface. Where Axis is a position and Camera is an image,
-// DigitalIO is the on/off signal lines that make up the bulk of a device's
-// field I/O (sensors, solenoids, valves, interlocks, light tower, ...).
+// Simulated digital input/output (Phase 2 stub). No hardware: input and output
+// lines are just bools in maps, so a module can exercise a real DI/DO interface.
+// Where Axis is a position and Camera is an image, DigitalIO is the on/off signal
+// lines that make up the bulk of a device's field I/O (sensors, solenoids,
+// valves, interlocks, light tower, ...).
+// 模拟数字量输入/输出（第二阶段桩）。无真实硬件——输入和输出线只是 map 中的
+// bool 值，让模块可以调用真实的 DI/DO 接口。Axis 是位置量，Camera 是图像量，
+// DigitalIO 是构成设备现场 I/O 主体的开关信号线（传感器、电磁阀、阀门、
+// 互锁、指示灯等）。
 class DigitalIO : public Resource {
 public:
     std::string Name() const override { return "DigitalIO"; }
 
     // --- outputs (DO): the device drives these ---------------------------
+    // --- 输出（DO）：设备驱动这些 -----------------------------------------
     void Write(int channel, bool on) { outputs_[channel] = on; }
     bool Output(int channel) const {
         const auto it = outputs_.find(channel);
@@ -26,6 +31,8 @@ public:
     // --- inputs (DI): the device reads these -----------------------------
     // Real inputs arrive from hardware; simulation/tests feed them via
     // SimulateInput.
+    // --- 输入（DI）：设备读取这些 -----------------------------------------
+    // 真实输入来自硬件；模拟/测试通过 SimulateInput 设置。
     bool Read(int channel) const {
         const auto it = inputs_.find(channel);
         return it != inputs_.end() ? it->second : false;

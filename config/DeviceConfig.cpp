@@ -7,6 +7,7 @@
 namespace oml {
 
 namespace {
+// Trim leading/trailing whitespace. 去除首尾空白。
 std::string Trim(const std::string& s) {
     const auto a = s.find_first_not_of(" \t\r");
     if (a == std::string::npos) return "";
@@ -30,7 +31,7 @@ long DeviceConfig::GetLong(const std::string& key, long fallback) const {
     try {
         return std::stol(it->second);
     } catch (...) {
-        return fallback; // not a number
+        return fallback; // not a number 非数字
     }
 }
 
@@ -54,9 +55,9 @@ void DeviceConfig::Load(std::istream& in) {
     std::string line;
     while (std::getline(in, line)) {
         const std::string t = Trim(line);
-        if (t.empty() || t[0] == '#') continue;
+        if (t.empty() || t[0] == '#') continue;          // skip comments/blanks 跳过注释/空行
         const auto eq = t.find('=');
-        if (eq == std::string::npos) continue; // not a key=value line
+        if (eq == std::string::npos) continue;             // not a key=value line 不是 key=value 行
         const std::string key = Trim(t.substr(0, eq));
         const std::string val = Trim(t.substr(eq + 1));
         if (!key.empty()) items_[key] = val;

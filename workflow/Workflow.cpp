@@ -20,5 +20,6 @@ Workflow::Result Workflow::Run() const {
     }
     return result;
 }
-
+// 运行所有步骤，在第一个失败处停止并记录失败步骤名。
+// Run all steps; stop at the first failure and record the failed step name.
 } // namespace oml

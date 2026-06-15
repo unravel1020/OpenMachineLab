@@ -20,6 +20,8 @@ void EventBus::Unsubscribe(int token) {
 void EventBus::Publish(const Event& event) {
     // Snapshot under the lock, deliver outside it so handlers can re-enter the
     // bus (Publish/Subscribe/Unsubscribe) without dead-locking.
+    // 在锁内快照，在锁外投递，使 handler 可重入总线（Publish/Subscribe/Unsubscribe）
+    // 而不会死锁。
     std::vector<Handler> snapshot;
     snapshot.reserve(handlers_.size());
     {

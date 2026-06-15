@@ -37,7 +37,7 @@ void History::Load(std::istream& in) {
         std::istringstream ls(line);
         unsigned seq = 0;
         std::string state_name;
-        if (!(ls >> seq >> state_name)) continue; // malformed line
+        if (!(ls >> seq >> state_name)) continue; // malformed line 格式错误
         std::string note;
         std::getline(ls, note);
         const auto first = note.find_first_not_of(' ');
@@ -45,14 +45,16 @@ void History::Load(std::istream& in) {
         else note.clear();
 
         entries_.push_back({seq, FromString(state_name), std::move(note)});
-        if (seq >= next_seq_) next_seq_ = seq + 1; // keep sequence monotonic
+        if (seq >= next_seq_) next_seq_ = seq + 1; // keep sequence monotonic 保持序列号单调递增
     }
 }
 
+// Auto-detach on destruction so we never leave a dangling callback in the bus.
+// 析构时自动脱离，避免在总线中留下悬空回调。
 History::~History() { Detach(); }
 
 void History::Attach(EventBus& bus) {
-    Detach(); // leave any previous bus first
+    Detach(); // leave any previous bus first 先脱离之前的总线
     bus_   = &bus;
     token_ = bus_->Subscribe([this](const Event& event) {
         if (const auto* sc = std::get_if<StateChanged>(&event)) {

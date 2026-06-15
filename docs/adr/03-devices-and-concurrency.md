@@ -118,3 +118,25 @@ explicit, isolatable, testable layer. The cost is that devices needing
 parallelism must express it via submission (slightly more code than implicit
 threading) — but that explicitness is the point. This ADR records the direction;
 it becomes "accepted" when the first real scenario implements it.
+
+## ADR-0019 — A DeviceFactory creates devices by type name
+
+**Status:** accepted
+**Date:** 2026-06-15
+
+**Context.** Devices were constructed directly (`make_unique<DieBonder>(cfg)`) at
+each call site, so a host that loads a device list (or a line config) cannot name
+a type without knowing the concrete class. Creation and management were tangled.
+
+**Decision.** Add a `DeviceFactory` (`device/DeviceFactory.h`): a registry mapping
+a type name to a `Creator` (`DeviceConfig` -> `unique_ptr<Device>`). `Register`
+types; `Create(type, cfg)` builds one (or `nullptr` if unknown). It is standalone
+— the `Host` does not own it: the application registers its concrete device types,
+creates devices via the factory, and hands them to the `Host` to manage. Creation
+and management stay decoupled.
+
+**Consequences.** A host or config can instantiate devices by type name + config
+without knowing concrete classes — the seam for a file-driven device line. The
+factory is a thin registry (no plugin/dependency-injection framework); concrete
+types live in application code and register themselves once at startup. Cost: one
+registration per type per process.

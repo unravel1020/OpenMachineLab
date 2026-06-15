@@ -1,10 +1,11 @@
-// host_demo - one Host managing multiple devices.
+// host_demo - one Host managing devices built by a DeviceFactory.
 //
-// Registers two different device profiles (a DieBonder and a PickAndPlace) with
-// a single Host, then drives them uniformly: InitializeAll, Status, ShutdownAll.
-// This is the "hosting" layer over the Device facade - one handle, many devices.
-// Running devices concurrently is deferred to the task/delegate pool (Phase 3);
-// here we only show uniform management.
+// Registers the concrete device types (DieBonder, PickAndPlace) with a factory
+// by name, builds them via the factory, and hands them to a Host for uniform
+// management (InitializeAll, Status, ShutdownAll). Creation (factory) and
+// management (Host) stay decoupled.
+#include "config/DeviceConfig.h"
+#include "device/DeviceFactory.h"
 #include "host/Host.h"
 #include "log/Logger.h"
 #include "minimal_machine/DieBonder.h"
@@ -17,9 +18,17 @@ using namespace oml;
 using namespace oml::example;
 
 int main() {
+    // Register concrete device types with a factory (by type name).
+    DeviceFactory factory;
+    factory.Register("DieBonder",
+                     [](const DeviceConfig& c) { return std::make_unique<DieBonder>(c); });
+    factory.Register("PickAndPlace",
+                     [](const DeviceConfig&) { return std::make_unique<PickAndPlace>(); });
+
+    // Build devices by type name and hand them to a Host to manage.
     Host host;
-    host.Register(std::make_unique<DieBonder>());
-    host.Register(std::make_unique<PickAndPlace>());
+    host.Register(factory.Create("DieBonder"));
+    host.Register(factory.Create("PickAndPlace"));
 
     Log().Info("host managing " + std::to_string(host.Size()) + " device(s):");
     for (const auto& name : host.Names()) Log().Info("    - " + name);

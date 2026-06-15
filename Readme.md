@@ -107,7 +107,7 @@ OpenMachineLab
 ├── log/          Logger - redirectable, thread-safe trace sink
 ├── event/        EventBus - pub/sub spine for events
 ├── alarm/        AlarmManager - alarms as causes of states
-├── device/       Device - named profile over a Machine
+├── device/       Device + DeviceFactory - profile + type-name factory
 ├── host/         Host - manages many devices uniformly
 ├── examples/
 │   ├── minimal_machine/   DieBonder profile (load/align/bond/unload)
@@ -266,7 +266,7 @@ OpenMachineLab
 ├── log/          Logger - 可重定向、线程安全的日志 sink
 ├── event/        EventBus - 事件发布/订阅脊梁
 ├── alarm/        AlarmManager - 告警（状态的原因）
-├── device/       Device - 基于 Machine 的具名 profile
+├── device/       Device + DeviceFactory - profile + 按类型名工厂
 ├── host/         Host - 统一管理多台设备
 ├── examples/
 │   ├── minimal_machine/   DieBonder profile（load/align/bond/unload）

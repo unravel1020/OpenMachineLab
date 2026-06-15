@@ -1,5 +1,7 @@
 // event_test - the EventBus spine: Machine publishes StateChanged, subscribers
 // receive it, and Unsubscribe stops delivery.
+// event_test - EventBus 脊梁：Machine 发布 StateChanged，订阅者接收，
+// Unsubscribe 停止投递。
 #include "oml_test.h"
 
 #include "event/Event.h"

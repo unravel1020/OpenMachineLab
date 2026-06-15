@@ -1,9 +1,13 @@
 // safety_test - invariants, edge cases, and thread-safety of the runtime model.
+// safety_test - 运行模型的不变量、边界用例和线程安全。
 //
 // Built on oml_test::TestBase. Covers: legal state transitions, the empty
 // machine, lifecycle edge cases (Initialize without Run), the fault/recovery
 // contract, Stop() idempotency, and concurrent Stop() requests (the first
 // concurrency-safety check - to be expanded in RoadMap Phase 3).
+// 基于 oml_test::TestBase。覆盖：合法状态转换、空机、生命周期边界（不 Run 直接
+// Initialize）、故障/恢复契约、Stop() 幂等性、以及并发 Stop() 请求
+// （第一个并发安全检查——RoadMap Phase 3 扩展）。
 #include "oml_test.h"
 
 #include "machine/Machine.h"

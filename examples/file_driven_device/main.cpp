@@ -1,4 +1,5 @@
 // file_driven_device - a DieBonder built from files, demonstrated with a fault.
+// file_driven_device - 由文件构建的 DieBonder，演示故障场景。
 //
 // Loads a DeviceConfig from diebonder.cfg and a RecipeSpec from diebonder.recipe,
 // registers the device's named actions, and builds the device from them. It runs
@@ -6,6 +7,10 @@
 // intermittent process error) on the 3rd cycle: that raises a PROCESS_FAIL alarm
 // (the CAUSE) and drives the machine into Fault (the STATE). main then lists the
 // active alarms and recovers via Reset - the full cause/state/recovery picture.
+// 从 diebonder.cfg 加载 DeviceConfig，从 diebonder.recipe 加载 RecipeSpec，
+// 注册设备命名动作，构建设备。正常运行两个 cycle 后，第三个 cycle 的 bond
+// 动作失败（模拟间歇性工艺错误）：产生 PROCESS_FAIL 告警（因）驱动机器进入
+// Fault（果）。main 列出活跃告警，通过 Reset 恢复——完整的因果/恢复图景。
 #include "alarm/Alarm.h"
 #include "config/DeviceConfig.h"
 #include "device/Device.h"
@@ -32,6 +37,8 @@ namespace {
 // A DieBonder whose config (channels/positions) and recipe (step sequence) both
 // come from files. The "bond" action simulates an intermittent failure: it
 // succeeds twice, then faults on the third attempt.
+// 配置（通道/位置）和配方（步骤序列）都来自文件的 DieBonder。
+// "bond" 动作模拟间歇性故障：前两次成功，第三次失败。
 class FileDrivenDieBonder : public Device {
 public:
     FileDrivenDieBonder(const DeviceConfig& cfg, std::istream& recipe_stream)
@@ -50,13 +57,17 @@ public:
         AddModule(std::make_unique<VisionModule>(*camera_p));
         AddModule(std::make_unique<IoModule>(*io_p));
 
+        // Config-driven wiring (falls back to sane defaults per key).
+        // 配置驱动的接线（每个 key 回退到合理默认值）。
         const int  part_di = static_cast<int>(cfg.GetLong("part_present_di", 1));
         const int  vacuum  = static_cast<int>(cfg.GetLong("vacuum_do", 1));
         const long load    = cfg.GetLong("load_pos", 100);
         const long align   = cfg.GetLong("align_pos", 200);
         const long unload  = cfg.GetLong("unload_pos", 300);
-        io_p->SimulateInput(part_di, true); // feed a part so LoadFrame succeeds
+        io_p->SimulateInput(part_di, true); // feed a part so LoadFrame succeeds 喂入工件使 LoadFrame 成功
 
+        // Named actions, bound to the resources. The recipe file names these.
+        // 命名动作，绑定到资源。配方文件按名字引用这些。
         ActionRegistry reg;
         reg.Register("load", [axis_p, io_p, part_di, load] {
             if (!io_p->Read(part_di)) {
@@ -105,7 +116,7 @@ public:
     }
 
 private:
-    int bond_attempts_ = 0; // simulates wear: the 3rd bond fails
+    int bond_attempts_ = 0; // simulates wear: the 3rd bond fails 模拟磨损：第三次 bond 失败
 };
 
 } // namespace
@@ -129,7 +140,7 @@ int main() {
 
     FileDrivenDieBonder device(cfg, recipe_file);
     device.Initialize();
-    device.Run(); // runs cycles; faults when the bond action fails
+    device.Run(); // runs cycles; faults when the bond action fails 跑 cycle；bond 失败时 fault
 
     if (device.State() == MachineState::Fault) {
         Log().Info("machine FAULTED - active alarms (the causes):");

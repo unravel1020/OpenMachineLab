@@ -1,10 +1,15 @@
-// persistence_test - save/load round-trips for state/history and recipes.
+// persistence_test - save/load round-trips for state/history, recipes, and config.
+// persistence_test - 状态/历史、配方和配置的 save/load 往返测试。
 //
 // Built on oml_test::TestBase. Covers:
 //   - History: a machine journals transitions + fault reason; Save -> Load
 //     reproduces every entry.
 //   - Recipe: an ActionRegistry + RecipeSpec; Save -> Load -> BuildWorkflow
 //     reproduces the recipe and runs it; an unknown action name yields no build.
+// 基于 oml_test::TestBase。覆盖：
+//   - History：机器记录状态转换 + 故障原因；Save → Load 完整复现。
+//   - Recipe：ActionRegistry + RecipeSpec；Save → Load → BuildWorkflow
+//     复现配方并运行；未知动作名不构建。
 #include "oml_test.h"
 
 #include "config/DeviceConfig.h"

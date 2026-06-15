@@ -1,8 +1,11 @@
 // perf_test - simple performance measurements of the runtime model.
+// perf_test - 运行模型的简单性能测量。
 //
 // Built on oml_test::TestBase. The Machine/Workflow trace is silenced so the
 // numbers reflect CPU cost, not console I/O. Perf tests report numbers and
 // assert only loose floors (so they never flake), to catch gross regressions.
+// 基于 oml_test::TestBase。Machine/Workflow trace 被屏蔽，数字只反映 CPU 开销
+// 而非控制台 I/O。报告数字并只断言宽松下限（不会 flake），用于捕捉明显回归。
 #include "oml_test.h"
 
 #include "machine/Machine.h"

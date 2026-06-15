@@ -1,5 +1,7 @@
 // alarm_test - alarms are the CAUSES of conditions; a Fault-severity alarm drives
 // the machine into Fault; Reset clears them. Distinct from the Fault state.
+// alarm_test - 告警是状态的"原因"；Fault 级告警驱动机器进入 Fault；Reset 清除。
+// 与 Fault 状态本身是不同的概念。
 #include "oml_test.h"
 
 #include "alarm/Alarm.h"

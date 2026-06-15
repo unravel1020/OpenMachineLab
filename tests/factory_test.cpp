@@ -1,5 +1,6 @@
 // factory_test - DeviceFactory: register a type, create by name + config, and
 // reject unknown types.
+// factory_test - DeviceFactory：注册类型、按名+配置创建、拒绝未知类型。
 #include "oml_test.h"
 
 #include "config/DeviceConfig.h"

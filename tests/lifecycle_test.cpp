@@ -1,8 +1,11 @@
 // lifecycle_test - functional coverage of the machine lifecycle.
+// lifecycle_test - 机器生命周期的功能覆盖。
 //
 // Built on oml_test::TestBase. Covers the failure -> Fault -> Reset path, the
 // module lifecycle hooks (via a RecordingModule), and the happy-path Run that
 // blocks until Stop.
+// 基于 oml_test::TestBase。覆盖：失败 → Fault → Reset 路径、模块生命周期钩子
+// （通过 RecordingModule）、以及阻塞到 Stop 的 happy-path Run。
 #include "oml_test.h"
 
 #include "machine/Machine.h"
